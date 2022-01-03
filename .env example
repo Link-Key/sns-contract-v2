@@ -1,0 +1,14 @@
+ETHERSCAN_API_KEY=ABC123ABC123ABC123ABC123ABC123ABC1
+ROPSTEN_URL=https://eth-ropsten.alchemyapi.io/v2/<YOUR ALCHEMY KEY>
+PRIVATE_KEY=0xabc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1
+
+
+POLYGON_URL1 = https://polygon-mumbai.g.alchemy.com/v2/
+
+POLYGON_URL = https://polygon-mumbai.infura.io/v3/
+
+
+
+LinkKeyAddress = 0x388192000d897e486fa06046edb6e76b3c48c8db
+SNSAddress = 0xc843beE7Cae723bC736398933b2d707788b86D56
+SNSResolver = 0xdC510bCc45c7710a2E0C6d828dB660aA54e8C611
