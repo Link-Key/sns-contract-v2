@@ -7,7 +7,7 @@
       "hash": "0x20e8b5a0895cacb3ac1cc169471b38dff4a3fedd74d770cbf6ee4b01341b7c6e",
       "type": 2,
       "accessList": [],
-      "blockHash": "0xd43f2e225a24d966df8f46662060f1c27552e70444318835d1ee3858f767fc22",
+      "blockHash": "0x9e43cf375d59d4969ebb3bd226328fa44ab44f9cf4c38759734a78f135096e32",
       "blockNumber": 2,
       "transactionIndex": 0,
       "confirmations": 1,
@@ -46,31 +46,6 @@
     {
       "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       "txHash": "0x15c2214b74fce9a9178252c5521ce6be5dccdc1cfc44e78027af76d265cbfe0a",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0xba6724df840f09ef6b52adc57bdbc781d9eca32bbba0ac714c3f4b86352dd82a",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x0f607c7f2badba4709716c8187448085a4eec8f25df78e3ed3469a74f7a301e3",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0x1323ec8d3ffe5d34829c166092e1e14cee9715169e4486c22c8849671a8cee03",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "txHash": "0x17c354769e9393abf2a5e37eb6f88130b6843bbdd5d193c466a11ef6449ed637",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "txHash": "0x8cb161fb4ea2dafb8f881bbb0c4fe5c53c7c9c539bb087cd6ff06a89e7e86a62",
       "kind": "transparent"
     },
     {
@@ -116,6 +91,46 @@
     {
       "address": "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
       "txHash": "0xfa87eeed9b8e1384f6b4eb6be1d3500cb96a575cea76bbdb24735a51e10994a1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "txHash": "0xa562b9b863d2fc32786823f25edb4b74e5e50f5eb963aca44e4406606fa935b7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "txHash": "0x75ac709096072ae55ae8df97a7e8d87680f02fd3ec6448b35d4b949b7bee414e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "txHash": "0x4bf31074fff9c8ac20652c6f3059a67cdbc8cc06f111831913b54844ed83ec0d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+      "txHash": "0x89abebbfd57c87da923b7a0f684daa84c119b58d45f4e2ccff31b4d08cd7aee6",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0xba6724df840f09ef6b52adc57bdbc781d9eca32bbba0ac714c3f4b86352dd82a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "txHash": "0x0f607c7f2badba4709716c8187448085a4eec8f25df78e3ed3469a74f7a301e3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      "txHash": "0xc857d819e386bc5cd80d0c22b0490ec8f97c286e346fc2b209afcd059b93f2fa",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "txHash": "0x7445ed02e6bc4c1be1457e2f759ab1a4ea9c145a89e9b0aab5be402289388596",
       "kind": "transparent"
     }
   ],
@@ -322,9 +337,9 @@
         }
       }
     },
-    "1439cc300e72724717f0181ce3b29ecc90fd86ad78ae7a2a3c40e694aed7d303": {
-      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "txHash": "0x70f2ec2c445a5ab58491c7381f89e072bc76031caa3ee5b3b0286c384254fede",
+    "d40b58b2c83f954d8e91686fe5f08943d67789215b2c8aa0a20ad48c3b273467": {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "txHash": "0x71d1b07ade80312f31e6fa7c23274f39645383012e860fb2ed48faba956627d1",
       "layout": {
         "storage": [
           {
@@ -421,18 +436,24 @@
             "contract": "NFT",
             "label": "_tokenMinted",
             "type": "t_uint256",
-            "src": "contracts/v1/NFT.sol:24"
+            "src": "contracts/v1/NFT.sol:25"
+          },
+          {
+            "contract": "NFT",
+            "label": "_isOnlySetOnce",
+            "type": "t_bool",
+            "src": "contracts/v1/NFT.sol:38"
           },
           {
             "contract": "NFT",
             "label": "setTokenURLOnce",
             "type": "t_mapping(t_uint256,t_bool)",
-            "src": "contracts/v1/NFT.sol:36"
+            "src": "contracts/v1/NFT.sol:48"
           },
           {
             "contract": "SNS",
             "label": "_key",
-            "type": "t_contract(LinkKey)4980",
+            "type": "t_contract(LinkKey)5167",
             "src": "contracts/v1/SNS.sol:17"
           },
           {
@@ -449,67 +470,73 @@
           },
           {
             "contract": "SNS",
-            "label": "SHORT_LENGTH",
+            "label": "SHORT_LENGTH_MAX",
             "type": "t_uint256",
             "src": "contracts/v1/SNS.sol:20"
           },
           {
             "contract": "SNS",
+            "label": "SHORT_LENGTH_MIN",
+            "type": "t_uint256",
+            "src": "contracts/v1/SNS.sol:21"
+          },
+          {
+            "contract": "SNS",
             "label": "_shortNameAllowedlist",
             "type": "t_mapping(t_address,t_bool)",
-            "src": "contracts/v1/SNS.sol:28"
+            "src": "contracts/v1/SNS.sol:29"
           },
           {
             "contract": "SNS",
             "label": "_resolverInfo",
-            "type": "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)5301_storage)",
-            "src": "contracts/v1/SNS.sol:37"
+            "type": "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)5512_storage)",
+            "src": "contracts/v1/SNS.sol:38"
           },
           {
             "contract": "SNS",
             "label": "_defaultResolverAddress",
             "type": "t_address",
-            "src": "contracts/v1/SNS.sol:40"
+            "src": "contracts/v1/SNS.sol:41"
           },
           {
             "contract": "SNS",
             "label": "_nameOfOwner",
             "type": "t_mapping(t_address,t_string_storage)",
-            "src": "contracts/v1/SNS.sol:43"
+            "src": "contracts/v1/SNS.sol:44"
           },
           {
             "contract": "SNS",
             "label": "_nameOfTokenId",
             "type": "t_mapping(t_uint256,t_string_storage)",
-            "src": "contracts/v1/SNS.sol:46"
+            "src": "contracts/v1/SNS.sol:47"
           },
           {
             "contract": "SNS",
             "label": "_tokenIdOfName",
             "type": "t_mapping(t_string_memory_ptr,t_uint256)",
-            "src": "contracts/v1/SNS.sol:49"
+            "src": "contracts/v1/SNS.sol:50"
           },
           {
             "contract": "SNS",
             "label": "_registered",
             "type": "t_mapping(t_address,t_bool)",
-            "src": "contracts/v1/SNS.sol:52"
+            "src": "contracts/v1/SNS.sol:53"
           },
           {
             "contract": "SNS",
             "label": "_nameRegistered",
             "type": "t_mapping(t_string_memory_ptr,t_bool)",
-            "src": "contracts/v1/SNS.sol:55"
+            "src": "contracts/v1/SNS.sol:56"
           },
           {
             "contract": "SNS",
             "label": "_feeTo",
             "type": "t_address",
-            "src": "contracts/v1/SNS.sol:58"
+            "src": "contracts/v1/SNS.sol:59"
           }
         ],
         "types": {
-          "t_contract(LinkKey)4980": {
+          "t_contract(LinkKey)5167": {
             "label": "contract LinkKey"
           },
           "t_string_storage": {
@@ -527,10 +554,10 @@
           "t_bool": {
             "label": "bool"
           },
-          "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)5301_storage)": {
+          "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)5512_storage)": {
             "label": "mapping(string => struct SNS.ResolverInfo)"
           },
-          "t_struct(ResolverInfo)5301_storage": {
+          "t_struct(ResolverInfo)5512_storage": {
             "label": "struct SNS.ResolverInfo",
             "members": [
               {
@@ -579,9 +606,9 @@
         }
       }
     },
-    "ad7da1a232aff0ebbba31bc55a153b7ded899bee34d9db2431b730b18bcc779f": {
-      "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "txHash": "0x553fe267dfc0a474345016072d8cee16a4ffc8ec94412256bda3c649c5db5f95",
+    "6ebc3f281ef347158db426c31ae1b686d8d8951497e30056af07b903a7d840bb": {
+      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+      "txHash": "0x48b415b870a766fe05c3b1f8389d5cae633b5b42145a41145d8652d1fca79b9c",
       "layout": {
         "storage": [
           {
@@ -599,7 +626,7 @@
           {
             "contract": "SNSResolver",
             "label": "records",
-            "type": "t_mapping(t_string_memory_ptr,t_struct(Record)6241_storage)",
+            "type": "t_mapping(t_string_memory_ptr,t_struct(Record)6521_storage)",
             "src": "contracts/v1/SNSResolver.sol:34"
           },
           {
@@ -616,13 +643,13 @@
           }
         ],
         "types": {
-          "t_mapping(t_string_memory_ptr,t_struct(Record)6241_storage)": {
+          "t_mapping(t_string_memory_ptr,t_struct(Record)6521_storage)": {
             "label": "mapping(string => struct SNSResolver.Record)"
           },
           "t_string_storage": {
             "label": "string"
           },
-          "t_struct(Record)6241_storage": {
+          "t_struct(Record)6521_storage": {
             "label": "struct SNSResolver.Record",
             "members": [
               {
@@ -687,6 +714,158 @@
               },
               {
                 "label": "orgTelegram",
+                "type": "t_string_storage"
+              }
+            ]
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_string_memory_ptr,t_string_storage)": {
+            "label": "mapping(string => string)"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "3bb43c5125f4b4f20ce9d02eb5c2f94191753efcbf0af562fb0512b0f8bc9680": {
+      "address": "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
+      "txHash": "0x2d5fdb6014fd4598e7ea2716d0eabf2a161b3537676409717b1b03de7a8c474c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "contract": "SNSResolverV2",
+            "label": "records",
+            "type": "t_mapping(t_string_memory_ptr,t_struct(Record)7415_storage)",
+            "src": "contracts/v2/SNSResolverV2.sol:41"
+          },
+          {
+            "contract": "SNSResolverV2",
+            "label": "recordsStr",
+            "type": "t_mapping(t_string_memory_ptr,t_string_storage)",
+            "src": "contracts/v2/SNSResolverV2.sol:43"
+          },
+          {
+            "contract": "SNSResolverV2",
+            "label": "_snsAddress",
+            "type": "t_address",
+            "src": "contracts/v2/SNSResolverV2.sol:56"
+          }
+        ],
+        "types": {
+          "t_mapping(t_string_memory_ptr,t_struct(Record)7415_storage)": {
+            "label": "mapping(string => struct SNSResolverV2.Record)"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_struct(Record)7415_storage": {
+            "label": "struct SNSResolverV2.Record",
+            "members": [
+              {
+                "label": "owner",
+                "type": "t_address"
+              },
+              {
+                "label": "ethAddress",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "btcAddress",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "ltcAddress",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "dogeAddress",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "ipfsUrl",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "url",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "email",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "avatar",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "description",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "notice",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "keywords",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "comGithub",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "comReddit",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "comTwitter",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "orgTelegram",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "chineseName",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "englishName",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "japaneseName",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "japaneseName1",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "japaneseName2",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "japaneseName3",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "japaneseName4",
                 "type": "t_string_storage"
               }
             ]

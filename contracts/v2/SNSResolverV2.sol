@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.0;
 
-import "./Resolver.sol";
+import "./ResolverV2.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "../util/LibString.sol";
 
-contract SNSResolver is Resolver, Initializable{
+contract SNSResolverV2 is ResolverV2, Initializable{
     using LibString for string;
 
     struct Record {
@@ -29,6 +29,13 @@ contract SNSResolver is Resolver, Initializable{
         string comReddit;
         string comTwitter;
         string orgTelegram;
+        string chineseName;
+        string englishName;
+        string japaneseName;
+        string japaneseName1;
+        string japaneseName2;
+        string japaneseName3;
+        string japaneseName4;
     }
 
     mapping(string => Record) private records;
@@ -127,7 +134,7 @@ contract SNSResolver is Resolver, Initializable{
     function setAllProperties(string memory name_, string memory recordsStr_) external authorised(name_) {
         recordsStr[name_] = recordsStr_;
         string[] memory properties = recordsStr_.split("+");
-        require(properties.length == 15 || properties.length == 14, "013 --- SNS.sol --- setAllProperties --- recordsStr error!!!");
+        require(properties.length == 22 || properties.length == 21, "013---recordsStr error!!!");
         records[name_].ethAddress = properties[0].equalNocase("")?records[name_].ethAddress:properties[0];
         records[name_].btcAddress = properties[1].equalNocase("")?records[name_].btcAddress:properties[1];
         records[name_].ltcAddress = properties[2].equalNocase("")?records[name_].ltcAddress:properties[2];
@@ -142,8 +149,15 @@ contract SNSResolver is Resolver, Initializable{
         records[name_].comGithub = properties[11].equalNocase("")?records[name_].comGithub:properties[11];
         records[name_].comReddit = properties[12].equalNocase("")?records[name_].comReddit:properties[12];
         records[name_].comTwitter = properties[13].equalNocase("")?records[name_].comTwitter:properties[13];
-        if(properties.length == 15){
-            records[name_].orgTelegram = properties[14].equalNocase("")?records[name_].orgTelegram:properties[14];
+        records[name_].orgTelegram = properties[14].equalNocase("")?records[name_].orgTelegram:properties[14];
+        records[name_].chineseName = properties[15].equalNocase("")?records[name_].chineseName:properties[15];
+        records[name_].englishName = properties[16].equalNocase("")?records[name_].englishName:properties[16];
+        records[name_].japaneseName = properties[17].equalNocase("")?records[name_].japaneseName:properties[17];
+        records[name_].japaneseName1 = properties[18].equalNocase("")?records[name_].japaneseName1:properties[18];
+        records[name_].japaneseName2 = properties[19].equalNocase("")?records[name_].japaneseName2:properties[19];
+        records[name_].japaneseName3 = properties[20].equalNocase("")?records[name_].japaneseName3:properties[20];
+        if(properties.length == 22){
+            records[name_].japaneseName4 = properties[21].equalNocase("")?records[name_].japaneseName4:properties[21];
         }
 
         emit ContentChanged(name_, "all", recordsStr_);
@@ -151,6 +165,34 @@ contract SNSResolver is Resolver, Initializable{
 
     function getAllProperties(string memory name_) external view returns (string memory){
         return recordsStr[name_];
+    }
+
+    function getChineseName(string memory name_) external view returns (string memory){
+        return records[name_].chineseName;
+    }
+
+    function getEnglishName(string memory name_) external view returns (string memory){
+        return records[name_].englishName;
+    }
+
+    function getJapaneseName(string memory name_) external view returns (string memory){
+        return records[name_].japaneseName;
+    }
+    
+    function getJapaneseName1(string memory name_) external view returns (string memory){
+        return records[name_].japaneseName1;
+    }
+
+    function getJapaneseName2(string memory name_) external view returns (string memory){
+        return records[name_].japaneseName2;
+    }
+
+    function getJapaneseName3(string memory name_) external view returns (string memory){
+        return records[name_].japaneseName3;
+    }
+
+    function getJapaneseName4(string memory name_) external view returns (string memory){
+        return records[name_].japaneseName4;
     }
 
 }

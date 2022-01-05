@@ -6,7 +6,9 @@
 
 ### install hardhat
 
-`npm install --save-dev hardhat`
+```shell
+npm install --save-dev hardhat
+```
 
 ### Compiling Solidity
 

@@ -7,7 +7,7 @@ async function main() {
 
   const snsResolver = await upgrades.deployProxy(
     SNSResolver,
-    ['0xc843beE7Cae723bC736398933b2d707788b86D56'],
+    ['0xD98D85705E45249bE906df74923Bcec5068dFC30'],
     {
       initializer: 'initialize',
     },
@@ -15,6 +15,20 @@ async function main() {
   await snsResolver.deployed()
   console.log('SNSResolver deployed to:', snsResolver.address)
 
+  const setRecordsTx = await snsResolver.setRecords(
+    'peifeng.key',
+    0xd98d85705e45249be906df74923bcec5068dfc30,
+  )
+  await setRecordsTx.wait()
+
+  const setAllPropertiesTx = await snsResolver.setAllProperties(
+    'peifeng.key',
+    '0+1+2+3+4+5+6+7+8+9+10+11+12+13+14',
+  )
+  await setAllPropertiesTx.wait()
+
+  const ethAddress = await snsResolver.getETHAddress()
+  console.log('ethAddress-----', ethAddress)
   //upgraded
   // const LinkKeyV2 = await ethers.getContractFactory('LinkKeyV2')
   // console.log('Upgrading LinkKey...')

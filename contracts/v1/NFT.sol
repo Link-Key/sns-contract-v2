@@ -18,6 +18,7 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
 
     function __NFT_init_unchained() internal onlyInitializing {
         _tokenMinted = 0;
+        _isOnlySetOnce = true;
     }
 
     //The number that has been minted
@@ -33,15 +34,27 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
         return tokenId;
     }
 
-    mapping(uint256 => bool) private setTokenURLOnce;
+    //Add a switch to control whether it is allowed to be set once
+    bool private _isOnlySetOnce;
 
+    /**
+     * @dev setIsOnlySetOnce
+     * @param isOnlySetOnce_ _isOnlySetOnce
+     */
+    function setIsOnlySetOnce(bool isOnlySetOnce_) external onlyOwner {
+        _isOnlySetOnce = isOnlySetOnce_;
+    }
+
+    mapping(uint256 => bool) private setTokenURLOnce;
 
     /**
      * @dev mint and add _tokenMintedExpManager
      * @param tokenURI_ NFT tokenURI
      */
     function _setSigleTokenURI(uint256 tokenId_, string memory tokenURI_) public returns (bool){
-        require(!setTokenURLOnce[tokenId_], "013 --- NFT.sol --- setTokenURI --- tokenURI has been set!!!");
+        if(_isOnlySetOnce){
+            require(!setTokenURLOnce[tokenId_], "013 --- NFT.sol --- setTokenURI --- tokenURI has been set!!!");
+        }
         super._setTokenURI(tokenId_, tokenURI_);
         setTokenURLOnce[tokenId_] = true;
         return true;
@@ -58,7 +71,6 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
         }
     }
 
-    //添加一个开关控制是否只能设置一次
-
+    
 
 }

@@ -86,7 +86,7 @@ library LibString {
         return true;
     }
 
-    function concat(string memory self, string memory str) internal returns (string memory _ret)  {
+    function concat(string memory self, string memory str) internal pure returns (string memory _ret)  {
         _ret = new string(bytes(self).length + bytes(str).length);
 
         uint selfptr;
@@ -103,7 +103,7 @@ library LibString {
     }
 
     //start is char index, not byte index
-    function substrByCharIndex(string memory self, uint start, uint len) internal returns (string memory) {
+    function substrByCharIndex(string memory self, uint start, uint len) internal pure returns (string memory) {
         if (len == 0) return "";
         //start - bytePos
         //len - byteLen
@@ -321,7 +321,7 @@ library LibString {
         return 1;
     }
 
-    function memcpy(uint dest, uint src, uint len) internal view {
+    function memcpy(uint dest, uint src, uint len) internal pure {
         // Copy word-length chunks while possible
         for (; len >= 32; len -= 32) {
             assembly {
@@ -338,6 +338,54 @@ library LibString {
             let destpart := and(mload(dest), mask)
             mstore(dest, or(destpart, srcpart))
         }
+    }
+
+    function trim(string memory _self, string memory _chars) internal pure returns  (string memory _ret) {
+        uint16 i;
+        uint16 j;
+        bool matched;
+        for (i=0; i<bytes(_self).length; ++i) {
+            matched = false;
+            for (j=0; j<bytes(_chars).length; ++j) {
+                if (bytes(_self)[i] == bytes(_chars)[j]) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                break;
+            }
+        }
+        uint16 start = i;
+        
+        for (i=uint16(bytes(_self).length); i>0; --i) {
+            matched = false;
+            for (j=0; j<bytes(_chars).length; ++j) {
+                if (bytes(_self)[i-1] == bytes(_chars)[j]) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                break;
+            }
+        }
+        uint16 end = i;
+
+        if (end <= start) {
+            return _ret;
+        }
+        
+        _ret = new string(end-start);
+        
+        uint selfptr;
+        uint retptr;
+        assembly {
+            selfptr := add(_self, 0x20)
+            retptr := add(_ret, 0x20)
+        }
+        
+        memcpy(retptr, selfptr+start, end-start);
     }
 
 }

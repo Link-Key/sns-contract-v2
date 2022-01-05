@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
-import "./LibString.sol";
+import "../util/LibString.sol";
 import "./NFT.sol";
 import "./LinkKey.sol";
 import "./SNSResolver.sol";
@@ -30,7 +30,7 @@ contract SNS is NFT {
 
     //shortNameAllowed permissions
     modifier shortNameAllowed(address addr_) {
-        require(_shortNameAllowedlist[addr_], "014 --- SNS.sol ---shortNameAllowed--- addr_ is not in _shortNameAllowedlist!!!");
+        require(_shortNameAllowedlist[addr_], "014---addr_ is not in _shortNameAllowedlist");
         _;
     }
 
@@ -66,23 +66,13 @@ contract SNS is NFT {
 
     event TransferName(address sender_, address form_, address to_, string name_);
 
-    // /**
-    //  * @dev Constructs a new SNS.
-    //  * @param key_ ERC20 address
-    //  * @param name_ NFT name
-    //  * @param symbol_ NFT symbol
-    //  * @param feeTo_ feeAddress
-    //  */
-    // constructor(address key_, string memory name_, string memory symbol_,address payable feeTo_) public {
-    //     //key
-    //     _key = LinkKey(key_);
-    //     //ERC721
-    //     _name = name_;
-    //     _symbol = symbol_;
-
-    //     _feeTo = feeTo_;
-    // }
-
+    /**
+     * @dev Constructs a new SNS.
+     * @param key_ ERC20 address
+     * @param name_ NFT name
+     * @param symbol_ NFT symbol
+     * @param feeTo_ feeAddress
+     */
     function initialize(address key_, string memory name_, string memory symbol_,address payable feeTo_) public initializer {
             //key
             _key = LinkKey(key_);
@@ -93,7 +83,8 @@ contract SNS is NFT {
             _feeTo = feeTo_;
             END_STR = ".key";
             STANDARD_LENGTH = 4;
-            // SHORT_LENGTH = 3;
+            SHORT_LENGTH_MAX = 3;
+            SHORT_LENGTH_MIN = 3;
 
     }
 
@@ -127,33 +118,36 @@ contract SNS is NFT {
 
     /**
      * @dev set ShortLength
-     * @param shortLength_ short name length
+     * @param short_Length_MAX_ short name length max
+     * @param short_Length_MIN_ short name length min
      */
-    function setShortLength(uint256 shortLength_) external virtual onlyOwner {
-        // SHORT_LENGTH = shortLength_;
+    function setShortLength(uint256 short_Length_MAX_,uint256 short_Length_MIN_) external virtual onlyOwner {
+        SHORT_LENGTH_MAX = short_Length_MAX_;
+        SHORT_LENGTH_MIN = short_Length_MIN_;
     }
 
-    //TODO 测试带空格的名称
+    // ------------------------------------------------------send--------------------------------------------------- 
 
     /**
      * @dev After 1 MATIC/SNS, 10001 starts to charge 10 MATIC/SNS
      * @param name_ SNS name
      */
     function mint(string memory name_) external payable  virtual {
-    
-        require(name_.lenOfChars() >= STANDARD_LENGTH, "007 --- SNS.sol --- registerName --- name length is less than 4");
+        //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
+        name_ = name_.trim(" "); 
+        require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
        
-        require(msg.value == 10 ether, "005 --- SNS.sol --- mint --- msg.value should be 10 ether!!!");
+        require(msg.value == 10 ether, "005---msg.value should be 10 ether");
         
         //Management address to collect money
         (bool success, ) = payable(_feeTo).call{value: msg.value}("");
-        require(success, "015 --- SNS.sol --- mint --- send matic to feeto address fail!!!");
+        require(success, "015---send matic to feeto address fail");
         //NFT
         uint256 tokenId = _addrMint();
         //ENS
         name_ = name_.toLowercase();
         name_ = name_.concat(END_STR);
-        require(_registerName(name_, _msgSender()), "003 --- SNS.sol --- mint --- Name register fail!!!");
+        require(_registerName(name_, _msgSender()), "003---Name register fail");
         _nameOfTokenId[tokenId] = name_;
         _tokenIdOfName[name_] = tokenId;
         //Key
@@ -166,14 +160,15 @@ contract SNS is NFT {
      * @param name_ SNS name
      */
     function shortNameMint(string memory name_) external virtual shortNameAllowed(_msgSender()){
-        // require(name_.lenOfChars() == SHORT_LENGTH, "015 --- SNS.sol --- shortNameMint --- name length error!!!");
+        name_ = name_.trim(" ");
+        require(name_.lenOfChars() >= SHORT_LENGTH_MIN && name_.lenOfChars() >= SHORT_LENGTH_MAX, "015---name length error");
         //NFT
         uint256 tokenId = _addrMint();
 
         //ENS
         name_ = name_.toLowercase();
         name_ = name_.concat(END_STR);
-        require(_registerName(name_, _msgSender()), "003 --- SNS.sol --- freeMint --- Name register fail!!!");
+        require(_registerName(name_, _msgSender()), "003---Name register fail");
         _nameOfTokenId[tokenId] = name_;
         _tokenIdOfName[name_] = tokenId;
         //Key
@@ -198,18 +193,20 @@ contract SNS is NFT {
      * @param to_ SNS owner
      * @param isKeyMint_  when mint
      */
-    function _managerMint(string memory name_, address to_, bool isKeyMint_) internal virtual returns (bool){
+    function _managerMint(string memory name_, address to_, bool isKeyMint_) internal virtual returns (bool success){
+        name_ = name_.trim(" ");
+        if(!name_.equalNocase(" ") && name_.lenOfChars()>0){
+            success = true;
+        }
         name_ = name_.toLowercase();
         name_ = name_.concat(END_STR);
 
-        if(_nameRegistered[name_] || _registered[to_]){
-            return false;
-        }else{
+        if(!_nameRegistered[name_] && !_registered[to_] && success){
             //NFT
             uint256 tokenId = _addrMint();
 
             //ENS
-            require(_registerName(name_, to_), "003 --- SNS.sol --- mint --- Name register fail!!!");
+            require(_registerName(name_, to_), "003---Name register fail");
             _nameOfTokenId[tokenId] = name_;
             _tokenIdOfName[name_] = tokenId;
 
@@ -218,9 +215,9 @@ contract SNS is NFT {
                 _key.mint();
             }
             emit ManagerMint(_msgSender(), name_, to_, tokenId);
-            return true;
-        }  
-
+        }
+            
+        return success;
     }
 
 
@@ -230,9 +227,9 @@ contract SNS is NFT {
      * @param to_ SNS owner
      */
     function _registerName(string memory name_, address to_) internal virtual returns (bool){
-        require(_defaultResolverAddress != address(0), "006 --- SNS.sol --- registerName --- please set defaultResolverAddress!!!");
-        require(!_nameRegistered[name_], "003 --- SNS.sol --- registerName --- name has been registered!!!");
-        require(!_registered[to_],"008 --- SNS.sol --- registerName --- the address has _registered!!!");
+        require(_defaultResolverAddress != address(0), "006---please set defaultResolverAddress");
+        require(!_nameRegistered[name_], "003---name has been registered");
+        require(!_registered[to_],"008---the address has _registered");
         _nameOfOwner[to_] = name_;
         _resolverInfo[name_].resolverAddress = _defaultResolverAddress;
         _resolverInfo[name_].owner = to_;
@@ -248,33 +245,9 @@ contract SNS is NFT {
      * @param resolverAddress_ SNS resolver address
      */
     function setResolverInfo(string memory name_, address resolverAddress_) external virtual {
-        require(_resolverInfo[name_].owner == _msgSender(), "009 --- SNS.sol --- setResolverInfo --- onlyOwner can setNewResolverInfo");
+        require(_resolverInfo[name_].owner == _msgSender(), "009---onlyOwner can setNewResolverInfo");
         _resolverInfo[name_].resolverAddress = resolverAddress_;
         emit SetResolverInfo(_msgSender(), name_, resolverAddress_);
-    }
-
-    /**
-     * @dev getResolverAddress
-     * @param name_  SNS name
-     */
-    function getResolverAddress(string memory name_) view external returns (address){
-        return _resolverInfo[name_].resolverAddress;
-    }
-
-    /**
-     * @dev getResolverOwner
-     * @param name_  SNS name
-     */
-    function getResolverOwner(string memory name_) view external returns (address){
-        return _resolverInfo[name_].owner;
-    }
-
-    /**
-     * @dev getSNSName
-     * @param addr_  owner address
-     */
-    function getSNSName(address addr_) view external returns (string memory){
-        return _nameOfOwner[addr_];
     }
 
     /**
@@ -285,9 +258,8 @@ contract SNS is NFT {
     function transfer(address to, string memory name_) public virtual {
         //NFT
         super.transferFrom(_msgSender(), to, _tokenIdOfName[name_]);
-
         //ENS
-        require(_transferName(_msgSender(), to, name_), "010 --- SNS.sol --- transferFrom --- transferName fail!!!");
+        require(_transferName(_msgSender(), to, name_), "010---transferName fail");
     }
 
     /**
@@ -300,7 +272,7 @@ contract SNS is NFT {
         //NFT
         super.transferFrom(from, to, tokenId);
         //ENS
-        require(_transferName(from, to, _nameOfTokenId[tokenId]), "010 --- SNS.sol ---transferFrom--- transferName fail!!!");
+        require(_transferName(from, to, _nameOfTokenId[tokenId]), "010---transferName fail");
     }
 
     /**
@@ -325,7 +297,7 @@ contract SNS is NFT {
         //NFT
         super.safeTransferFrom(from, to, tokenId, _data);
         //ENS
-        require(_transferName(from, to, _nameOfTokenId[tokenId]), "010 --- SNS.sol ---safeTransferFrom--- transferName fail!!!");
+        require(_transferName(from, to, _nameOfTokenId[tokenId]), "010---transferName fail");
     }
 
     /**
@@ -335,8 +307,8 @@ contract SNS is NFT {
      * @param name_ SNS name
      */
     function _transferName(address form_, address to_, string memory name_) internal virtual returns (bool){
-        require(!_registered[to_], "011 to_ has a name!!!");
-        require(_nameOfOwner[form_].equal(name_), "012 --- SNS.sol ---_transferName--- form_ is not the owner of name!!!");
+        require(!_registered[to_], "011---to_ has a name");
+        require(_nameOfOwner[form_].equal(name_), "012---form_ is not the owner of name");
         _resolverInfo[name_].owner = to_;
         _nameOfOwner[form_] = "";
         _nameOfOwner[to_] = name_;
@@ -347,6 +319,7 @@ contract SNS is NFT {
         return true;
     }
 
+    // ------------------------------------------------------call---------------------------------------------------
 
     /**
      * @dev _shortNameAllowedlist
@@ -363,6 +336,13 @@ contract SNS is NFT {
     }
 
     /**
+     * @dev _addressRegistered
+     */
+    function getAddressRegistered(address addr_) public view returns (bool){
+        return _registered[addr_];
+    }
+
+    /**
      * @dev getNameOfOwner
      */
     function getNameOfOwner(address addr_) public view returns (string memory){
@@ -370,11 +350,33 @@ contract SNS is NFT {
     }
 
     /**
-         * @dev getNameOfOwner
+    * @dev getNameOfTokenId
      */
     function getNameOfTokenId(uint256 tokenId_) public view returns (string memory){
         return _nameOfTokenId[tokenId_];
     }
 
+    /**
+    * @dev getTokenIdOfName
+     */
+    function getTokenIdOfName(string memory name_) public view returns (uint256){
+        return _tokenIdOfName[name_];
+    }
+
+    /**
+     * @dev getResolverOwner
+     * @param name_  SNS name
+     */
+    function getResolverOwner(string memory name_) view external returns (address){
+        return _resolverInfo[name_].owner;
+    }
+
+    /**
+     * @dev getResolverAddress
+     * @param name_  SNS name
+     */
+    function getResolverAddress(string memory name_) view external returns (address){
+        return _resolverInfo[name_].resolverAddress;
+    }
 
 }

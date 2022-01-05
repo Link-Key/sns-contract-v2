@@ -19,7 +19,12 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
-const { alchemyApiKey, mnemonic } = require('./secrets.json')
+const {
+  alchemyApiKey,
+  infuraKey,
+  mnemonic,
+  main_alchemyApiKey,
+} = require('./secrets.json')
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -39,8 +44,16 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    polygon_test: {
-      url: process.env.POLYGON_URL + alchemyApiKey || '',
+    polygon_main_a: {
+      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+      accounts: { mnemonic: mnemonic },
+    },
+    polygon_test_a: {
+      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+      accounts: { mnemonic: mnemonic },
+    },
+    polygon_test_i: {
+      url: process.env.POLYGON_URL_I + infuraKey || '',
       accounts: { mnemonic: mnemonic },
     },
   },
