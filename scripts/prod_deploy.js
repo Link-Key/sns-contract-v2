@@ -24,10 +24,10 @@ async function main() {
   await snsResolver.deployed()
   console.log('SNSResolver deployed to:', snsResolver.address)
 
-  console.log('LinkKey setMinter ing...')
-  const setMinterTx = await linkKey.setMinter(sns.address)
-  await setMinterTx.wait()
-  console.log('LinkKey setMinter success')
+  // console.log('LinkKey setMinter ing...')
+  // const setMinterTx = await linkKey.setMinter(sns.address)
+  // await setMinterTx.wait()
+  // console.log('LinkKey setMinter success')
 
   console.log('SNS setDefaultResolverAddress ing...')
   const setDefaultResolverTx = await sns.setDefaultResolverAddress(

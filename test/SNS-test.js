@@ -98,7 +98,11 @@ describe('SNS', function () {
 
   //Test----------------------------SNS.sol--------------------
   it('[2]sns:Test call function[releaseTime] ', async function () {
-    expect(await this.sns._tokenMinted()).to.equal(0)
+    expect(await this.sns.getTokenMinted()).to.equal(0)
+  })
+
+  it('[2+1]sns:Test call function[getPrice]', async function () {
+    expect(await this.sns.getPrice()).to.equal(ethers.utils.parseEther('1'))
   })
 
   it('[3]sns:Test send function[mint] ', async function () {
@@ -108,8 +112,9 @@ describe('SNS', function () {
       ),
     ).to.equal('')
 
+    const price = await this.sns.getPrice()
     await this.sns.mint('peifeng', {
-      value: ethers.utils.parseEther('10'),
+      value: price,
     })
 
     expect(
@@ -149,7 +154,7 @@ describe('SNS', function () {
       ),
     ).to.equal('150000000000000000000')
 
-    expect(await this.sns._tokenMinted()).to.equal(1)
+    expect(await this.sns.getTokenMinted()).to.equal(1)
   })
 
   it('[5]sns:Test send function[setTokenURI] ', async function () {
@@ -161,7 +166,7 @@ describe('SNS', function () {
 
     expect(await this.sns.tokenURI(tokenId)).to.equal('www.baidu.com')
 
-    expect(await this.sns._tokenMinted()).to.equal(1)
+    expect(await this.sns.getTokenMinted()).to.equal(1)
   })
 
   it('[6]sns:Test send function[shortNameMint] ', async function () {
@@ -189,7 +194,7 @@ describe('SNS', function () {
       ),
     ).to.equal('300000000000000000000')
 
-    expect(await this.sns._tokenMinted()).to.equal(2)
+    expect(await this.sns.getTokenMinted()).to.equal(2)
   })
 
   it('[7]sns:Test send function[managerMint] ', async function () {
@@ -226,7 +231,7 @@ describe('SNS', function () {
       false,
     )
 
-    expect(await this.sns._tokenMinted()).to.equal(3)
+    expect(await this.sns.getTokenMinted()).to.equal(3)
 
     expect(
       await this.sns.getNameOfOwner(
@@ -251,7 +256,7 @@ describe('SNS', function () {
       true,
     )
 
-    expect(await this.sns._tokenMinted()).to.equal(5)
+    expect(await this.sns.getTokenMinted()).to.equal(5)
 
     expect(
       await this.sns.getNameOfOwner(
@@ -270,6 +275,12 @@ describe('SNS', function () {
         '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
       ),
     ).to.equal('600000000000000000000')
+  })
+
+  it('[7+]sns:Test send function[price increases] ', async function () {
+    expect(await this.sns.getTokenMinted()).to.equal(5)
+    const price = await this.sns.getPrice()
+    console.log('price--------', price)
   })
 
   //Test----------------------------SNSResolver.sol--------------------

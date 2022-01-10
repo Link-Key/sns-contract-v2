@@ -24,6 +24,8 @@ const {
   infuraKey,
   mnemonic,
   main_alchemyApiKey,
+  mnemonic1,
+  mnemonic2,
 } = require('./secrets.json')
 /**
  * @type import('hardhat/config').HardhatUserConfig

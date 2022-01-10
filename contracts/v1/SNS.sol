@@ -20,6 +20,15 @@ contract SNS is NFT {
     uint256 private SHORT_LENGTH_MAX;
     uint256 private SHORT_LENGTH_MIN;
 
+    //need to turn off this function after synchronization is complete
+    bool private _canManagerMint;
+
+    //Number of people between price increases
+    uint256 private _increasesNumber;
+
+    //Price increase 1/ 1ether
+    uint256 private _increasesPrice;
+
     struct ResolverInfo {
         address resolverAddress;
         address owner;
@@ -74,18 +83,22 @@ contract SNS is NFT {
      * @param feeTo_ feeAddress
      */
     function initialize(address key_, string memory name_, string memory symbol_,address payable feeTo_) public initializer {
-            //key
-            _key = LinkKey(key_);
+        //key
+        _key = LinkKey(key_);
 
-            //ERC721
-            __NFT_init(name_,symbol_);
+        //ERC721
+        __NFT_init(name_,symbol_);
 
-            _feeTo = feeTo_;
-            END_STR = ".key";
-            STANDARD_LENGTH = 4;
-            SHORT_LENGTH_MAX = 3;
-            SHORT_LENGTH_MIN = 3;
+        _feeTo = feeTo_;
+        END_STR = ".key";
+        STANDARD_LENGTH = 4;
+        SHORT_LENGTH_MAX = 3;
+        SHORT_LENGTH_MIN = 3;
 
+        _canManagerMint = true;
+
+        _increasesNumber = 10000;
+        _increasesPrice = 5  / 10 * 1 ether;
     }
 
     /**
@@ -126,6 +139,25 @@ contract SNS is NFT {
         SHORT_LENGTH_MIN = short_Length_MIN_;
     }
 
+    /**
+     * @dev setCanManagerMint
+     * @param canManagerMint_ bool
+     */
+    function setCanManagerMint(bool canManagerMint_) external virtual onlyOwner {
+        _canManagerMint = canManagerMint_;
+    }
+
+    /**
+     * @dev setIncreases
+     * @param increasesNumber_ uint256
+     * @param increasesPrice_ uint256
+     */
+    function setIncreases(uint256 increasesNumber_,uint256 increasesPrice_) external virtual onlyOwner {
+        _increasesNumber =  increasesNumber_;
+
+        _increasesPrice =  increasesPrice_;
+    }
+
     // ------------------------------------------------------send--------------------------------------------------- 
 
     /**
@@ -137,7 +169,7 @@ contract SNS is NFT {
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
        
-        require(msg.value == 10 ether, "005---msg.value should be 10 ether");
+        require(msg.value == getPrice(), "005---msg.value error");
         
         //Management address to collect money
         (bool success, ) = payable(_feeTo).call{value: msg.value}("");
@@ -154,6 +186,8 @@ contract SNS is NFT {
         _key.mint();
         emit Mint(_msgSender(), name_, tokenId);
     }
+
+    
 
     /**
      * @dev shortNameMint
@@ -181,9 +215,9 @@ contract SNS is NFT {
      * @param names_ SNS name
      * @param tos_ SNS owner
      */
-    function batchManagerMint(string[] memory names_, address[] memory tos_, bool isKeyMint_) external virtual onlyOwner {
+    function batchManagerMint(string[] memory names_, address[] memory tos_,uint256[] memory tokenIds_, bool isKeyMint_) external virtual onlyOwner {
         for (uint256 i = 0; i < names_.length; i++) {
-            _managerMint(names_[i], tos_[i], isKeyMint_);
+            _managerMint(names_[i], tos_[i], tokenIds_[i], isKeyMint_);
         }
     }
 
@@ -193,7 +227,8 @@ contract SNS is NFT {
      * @param to_ SNS owner
      * @param isKeyMint_  when mint
      */
-    function _managerMint(string memory name_, address to_, bool isKeyMint_) internal virtual returns (bool success){
+    function _managerMint(string memory name_, address to_,uint256 tokenId_, bool isKeyMint_) internal virtual returns (bool success){
+        require(_canManagerMint,"016---manager can't mint");
         name_ = name_.trim(" ");
         if(!name_.equalNocase(" ") && name_.lenOfChars()>0){
             success = true;
@@ -203,7 +238,10 @@ contract SNS is NFT {
 
         if(!_nameRegistered[name_] && !_registered[to_] && success){
             //NFT
-            uint256 tokenId = _addrMint();
+            uint256 tokenId = _manageMint(to_,tokenId_);
+            if(tokenId == 0){
+                return false;
+            }
 
             //ENS
             require(_registerName(name_, to_), "003---Name register fail");
@@ -219,7 +257,6 @@ contract SNS is NFT {
             
         return success;
     }
-
 
     /**
      * @dev registerSNS
@@ -377,6 +414,28 @@ contract SNS is NFT {
      */
     function getResolverAddress(string memory name_) view external returns (address){
         return _resolverInfo[name_].resolverAddress;
+    }
+
+    /**
+     * @dev getPrice
+     */
+    function getPrice() public view  returns(uint256 price) {
+        uint256 tokenMinted = super.getTokenMinted();
+        if(tokenMinted < 10000){
+            return 1 ether;
+        }else{
+            uint256 times = super.getTokenMinted().div(_increasesNumber);
+            price = 10 ether;
+
+            if(times > 1){
+                for(uint256 i = 1; i < times; i++){
+                    price = price.mul(_increasesPrice).div(1 ether);
+                }
+            }
+
+            return price;
+        }
+        
     }
 
 }

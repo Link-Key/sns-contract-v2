@@ -22,7 +22,12 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
     }
 
     //The number that has been minted
-    uint256 public _tokenMinted;
+    uint256 private _tokenMinted;
+
+   
+    function getTokenMinted() public view virtual returns (uint256) {
+        return _tokenMinted;
+    }
 
     /**
      * @dev mint and add _tokenMintedExpManager
@@ -30,6 +35,26 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
     function _addrMint() internal returns (uint256){
         uint256 tokenId = _tokenMinted + 1;
         super._safeMint(_msgSender(), tokenId);
+        _tokenMinted += 1;
+        return tokenId;
+    }
+
+    /**
+     * @dev mint and add _tokenMintedExpManager
+     */
+    function _manageMint(address to_,uint256 tokenId_) internal returns (uint256){
+        uint256 tokenId;
+        if(!_exists(tokenId_)){
+            if(tokenId_ == 0){
+                tokenId = _tokenMinted + 1;
+            }else{
+                tokenId = tokenId_;
+            }
+        }else{
+            return 0;
+        }
+        
+        super._safeMint(to_, tokenId_);
         _tokenMinted += 1;
         return tokenId;
     }

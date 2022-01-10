@@ -7,7 +7,7 @@ const hre = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
 
 async function main() {
-  // const LinkKey = await ethers.getContractFactory('LinkKey')
+  const LinkKey = await ethers.getContractFactory('LinkKey')
   // const linkKey = await upgrades.deployProxy(
   //   LinkKey,
   //   [
@@ -24,29 +24,29 @@ async function main() {
   //     initializer: 'initialize',
   //   },
   // )
-  // const linkKey = await LinkKey.deploy()
-  // console.log('LinkKey deployed to:', linkKey.address)
-  // const initializerTx = await linkKey.initialize(
-  //   'linkkeyTest',
-  //   'lkt',
-  //   1672329600,
-  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //   150,
-  // )
-  // await initializerTx.wait()
-  // console.log('LinkKey initializer success')
+  const linkKey = await LinkKey.deploy()
+  console.log('LinkKey deployed to:', linkKey.address)
+  const initializerTx = await linkKey.initialize(
+    'linkkeyTest',
+    'lkt',
+    1672329600,
+    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+    150,
+  )
+  await initializerTx.wait()
+  console.log('LinkKey initializer success')
 
   const SNS = await ethers.getContractFactory('SNS')
   const sns = await upgrades.deployProxy(
     SNS,
     [
-      '0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f',
+      linkKey.address,
       'SNS',
       'SNS',
-      '0xfa18b733b5d9dfCBf2382d0Cf269A0904F1BAa69',
+      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
     ],
     {
       initializer: 'initialize',
@@ -62,6 +62,9 @@ async function main() {
   await snsResolver.deployed()
   console.log('SNSResolver deployed to:', snsResolver.address)
 
+  // const linkKey = await LinkKey.attach(
+  //   '0xb338802b51F3CFC87307Ea3d5d9B96E17D5Ae884',
+  // )
   console.log('LinkKey setMinter ing...')
   //linkKey setMinter(sns address)
   const setMinterTx = await linkKey.setMinter(sns.address)
