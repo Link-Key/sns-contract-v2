@@ -2,15 +2,16 @@ const { ethers, upgrades } = require('hardhat')
 
 async function main() {
   const SNS = await ethers.getContractFactory('SNS')
-  const sns = await SNS.attach('0x5fE611901dDc8a874D274626a8E793b3E07bb40D')
+  const sns = await SNS.attach('0x69F5B757e5699e00F2f5e27b9217a27C3bD5eF13')
   console.log('load SNS success')
   console.log('SNS ManagerMint ing...')
   const managerMintTx = await sns.batchManagerMint(
-    ['peifeng', 'karma'],
+    ['peifeng1', 'karma1'],
     [
-      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-      '0x185BA2eD90fA734c34abd6F2283f22C785afba75',
+      '0x29D3fb9961f98a97C6fDac8d9162cF958e4C6Af5',
+      '0x0b4b6D35bA540704F7Ae85F523050F67be45025e',
     ],
+    ['0', '3'],
     true,
   )
   await managerMintTx.wait()

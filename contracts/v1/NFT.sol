@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "./ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 
@@ -54,7 +54,7 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
             return 0;
         }
         
-        super._safeMint(to_, tokenId_);
+        super._safeMint(to_, tokenId);
         _tokenMinted += 1;
         return tokenId;
     }

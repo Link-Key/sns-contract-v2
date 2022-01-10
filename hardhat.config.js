@@ -26,6 +26,7 @@ const {
   main_alchemyApiKey,
   mnemonic1,
   mnemonic2,
+  mnemonic_matemask,
 } = require('./secrets.json')
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -48,11 +49,11 @@ module.exports = {
     },
     polygon_main_a: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic },
+      accounts: { mnemonic: mnemonic_matemask },
     },
     polygon_test_a: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic },
+      accounts: { mnemonic: mnemonic_matemask },
     },
     polygon_test_i: {
       url: process.env.POLYGON_URL_I + infuraKey || '',
