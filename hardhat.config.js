@@ -27,6 +27,7 @@ const {
   mnemonic1,
   mnemonic2,
   mnemonic_matemask,
+  mnemonic_zack,
 } = require('./secrets.json')
 /**
  * @type import('hardhat/config').HardhatUserConfig

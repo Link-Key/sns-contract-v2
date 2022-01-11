@@ -2,14 +2,11 @@ const { ethers, upgrades } = require('hardhat')
 
 async function main() {
   const SNS = await ethers.getContractFactory('SNS')
-  const sns = await SNS.attach('0x19AD2b1F012349645C3173EA63F98948A2b43d27')
+  const sns = await SNS.attach('0x4F10405b504ef46c1c934e6917d2ba16361E242e')
   console.log('load SNS success')
-  console.log('SNS transferOwnershiping...')
-  const transferOwnershipTx = await sns.transferOwnership(
-    '0xB879C52F1B7C2E366410b2718924a306d098B9d9',
-  )
-  await transferOwnershipTx.wait()
-  console.log('SNS transferOwner success')
+  console.log('SNS getResolverOwner...')
+  const addr = await sns.getResolverOwner('peifeng.key')
+  console.log('addr---', addr)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
