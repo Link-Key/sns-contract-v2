@@ -5,10 +5,10 @@ async function main() {
   const sns = await upgrades.deployProxy(
     SNS,
     [
-      '0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f',
+      '0xc50417c523f5fE59cdADB9BC5A5F1059b0309EfC', // key address
       'SNS',
       'SNS',
-      '0xfa18b733b5d9dfCBf2382d0Cf269A0904F1BAa69',
+      '0x8C3A3D73B05710683E6deF2E248A7D2d47096599', // feeTo Address
     ],
     {
       initializer: 'initialize',
@@ -36,12 +36,12 @@ async function main() {
   await setDefaultResolverTx.wait()
   console.log('SNS setDefaultResolverAddress success')
 
-  console.log('SNS transferOwnershiping...')
-  const transferOwnershipTx = await sns.transferOwnership(
-    '0x7dcc1C9D46C0B43D2170618CDce195a693aD0C49',
-  )
-  await transferOwnershipTx.wait()
-  console.log('SNS transferOwner success')
+  // console.log('SNS transferOwnershiping...')
+  // const transferOwnershipTx = await sns.transferOwnership(
+  //   '0x7dcc1C9D46C0B43D2170618CDce195a693aD0C49',
+  // )
+  // await transferOwnershipTx.wait()
+  // console.log('SNS transferOwner success')
 }
 
 // We recommend this pattern to be able to use async/await everywhere

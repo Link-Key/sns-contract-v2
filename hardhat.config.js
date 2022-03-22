@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 require('dotenv').config()
 
 require('@nomiclabs/hardhat-etherscan')
@@ -43,23 +44,27 @@ module.exports = {
     },
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    polygon_main_a: {
-      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask },
-    },
-    polygon_test_a: {
-      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask },
-    },
-    polygon_test_i: {
-      url: process.env.POLYGON_URL_I + infuraKey || '',
+    // ropsten: {
+    //   url: process.env.ROPSTEN_URL || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    // },
+    // polygon_main_a: {
+    //   url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+    //   accounts: { mnemonic: mnemonic_matemask },
+    // },
+    // polygon_test_a: {
+    //   url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+    //   accounts: { mnemonic: mnemonic_matemask },
+    // },
+    // polygon_test_i: {
+    //   url: process.env.POLYGON_URL_I + infuraKey || '',
+    //   accounts: { mnemonic: mnemonic },
+    // },
+    kava_test: {
+      url: 'https://evm.evm-alpha.kava.io' || '',
       accounts: { mnemonic: mnemonic },
-    },
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
