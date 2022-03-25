@@ -2,14 +2,15 @@ const { ethers, upgrades } = require('hardhat')
 
 async function main() {
   const SNS = await ethers.getContractFactory('SNS')
-  const sns = await SNS.attach('0xac53bb0aD7DCEB44219B46A1B05E0373a9063eC3')
+  const sns = await SNS.attach('0xA47783B23701ace719E9Cc081c5BCa5A5Be0C2e0')
   console.log('load SNS success')
-  console.log('SNS transferOwnershiping...')
-  const transferOwnershipTx = await sns.transferOwnership(
-    '0xB879C52F1B7C2E366410b2718924a306d098B9d9',
-  )
-  await transferOwnershipTx.wait()
-  console.log('SNS transferOwner success')
+  const price = await sns.getPrice()
+  console.log('SNS Mint ing...')
+  const MintTx = await sns.mint('karma', {
+    value: price,
+  })
+  await MintTx.wait()
+  console.log('SNS mint success')
 }
 
 // We recommend this pattern to be able to use async/await everywhere

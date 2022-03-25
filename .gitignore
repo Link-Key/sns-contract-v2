@@ -8,3 +8,7 @@ secrets.json
 #Hardhat files
 cache
 artifacts
+
+/.openzeppelin/
+
+.idea

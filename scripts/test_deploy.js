@@ -8,35 +8,35 @@ const { ethers, upgrades } = require('hardhat')
 
 async function main() {
   const LinkKey = await ethers.getContractFactory('LinkKey')
-  // const linkKey = await upgrades.deployProxy(
-  //   LinkKey,
-  //   [
-  //     'linkkeyTest',
-  //     'lkt',
-  //     1672329600,
-  //     '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //     '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //     '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //     '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-  //     150,
-  //   ],
-  //   {
-  //     initializer: 'initialize',
-  //   },
-  // )
-  const linkKey = await LinkKey.deploy()
-  console.log('LinkKey deployed to:', linkKey.address)
-  const initializerTx = await linkKey.initialize(
-    'linkkeyTest',
-    'lkt',
-    1672329600,
-    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-    150,
+  const linkKey = await upgrades.deployProxy(
+    LinkKey,
+    [
+      'linkkeyTest',
+      'lkt',
+      1672329600,
+      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+      150,
+    ],
+    {
+      initializer: 'initialize',
+    },
   )
-  await initializerTx.wait()
+  // const linkKey = await LinkKey.deploy()
+  console.log('LinkKey deployed to:', linkKey.address)
+  // const initializerTx = await linkKey.initialize(
+  //   'linkkeyTest',
+  //   'lkt',
+  //   1672329600,
+  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+  //   '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+  //   150,
+  // )
+  // await initializerTx.wait()
   console.log('LinkKey initializer success')
 
   const SNS = await ethers.getContractFactory('SNS')
@@ -46,7 +46,7 @@ async function main() {
       linkKey.address,
       'SNS',
       'SNS',
-      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+      '0x7a3cc235c7e28c9b306fbb9c014e95ffb2b109d5',
     ],
     {
       initializer: 'initialize',
