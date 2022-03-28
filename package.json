@@ -36,6 +36,7 @@
     "solidity-coverage": "^0.7.17"
   },
   "dependencies": {
-    "@openzeppelin/contracts-upgradeable": "^4.4.1"
+    "@openzeppelin/contracts-upgradeable": "^4.4.1",
+    "bignumber.js": "^9.0.2"
   }
 }

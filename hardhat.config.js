@@ -26,7 +26,9 @@ const {
   main_alchemyApiKey,
   mnemonic1,
   mnemonic2,
-  mnemonic_matemask,
+  mnemonic_matemask_account1,
+  mnemonic_matemask_account9,
+  mnemonic_matemask_account10,
   mnemonic_zack,
 } = require('./secrets.json')
 /**
@@ -38,7 +40,7 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1000,
+        runs: 200,
       },
     },
   },
@@ -50,11 +52,21 @@ module.exports = {
     },
     polygon_main_a: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask },
+      accounts: { mnemonic: mnemonic_zack },
     },
-    polygon_test_a: {
+    polygon_test_account1: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask },
+      accounts: { mnemonic: mnemonic_matemask_account1 },
+      gas: 2100000,
+      gasPrice: 8000000000,
+    },
+    polygon_test_account9: {
+      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+      accounts: { mnemonic: mnemonic_matemask_account9 },
+    },
+    polygon_test_account10: {
+      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+      accounts: { mnemonic: mnemonic_matemask_account10 },
     },
     polygon_test_i: {
       url: process.env.POLYGON_URL_I + infuraKey || '',
