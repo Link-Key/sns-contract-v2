@@ -40,33 +40,33 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 150,
       },
     },
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    polygon_main_a: {
-      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_zack },
-    },
-    polygon_test_account1: {
+    // ropsten: {
+    //   url: process.env.ROPSTEN_URL || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    // },
+    // polygon_main_a: {
+    //   url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+    //   accounts: { mnemonic: mnemonic_zack },
+    // },
+    // polygon_test_account1: {
+    //   url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+    //   accounts: { mnemonic: mnemonic_matemask_account1 },
+    //   gas: 2100000,
+    //   gasPrice: 8000000000,
+    // },
+    // polygon_test_account9: {
+    //   url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+    //   accounts: { mnemonic: mnemonic_matemask_account9 },
+    // },
+    polygon_test_account: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask_account1 },
-      gas: 2100000,
-      gasPrice: 8000000000,
-    },
-    polygon_test_account9: {
-      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask_account9 },
-    },
-    polygon_test_account10: {
-      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask_account10 },
+      accounts: { mnemonic: mnemonic },
     },
     polygon_test_i: {
       url: process.env.POLYGON_URL_I + infuraKey || '',

@@ -9,6 +9,7 @@ import "../util/LibString.sol";
 import "./NFTV2.sol";
 import "../v1/LinkKey.sol";
 import "../v1/SNSResolver.sol";
+import "../v1/Invite.sol";
 
 contract SNSV2 is NFTV2 {
     using SafeMathUpgradeable for uint256;
@@ -159,22 +160,30 @@ contract SNSV2 is NFTV2 {
         _increasesPrice =  increasesPrice_;
     }
 
-    // ------------------------------------------------------send--------------------------------------------------- 
+    // ------------------------------------------------------send---------------------------------------------------
 
     /**
      * @dev After 1 MATIC/SNS, 10001 starts to charge 10 MATIC/SNS
      * @param name_ SNS name
+     * @param inviter_ inviter address
      */
-    function mint(string memory name_) external payable {
+    function mint(string memory name_, address inviter_) external payable {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
-        name_ = name_.trim(" "); 
+        name_ = name_.trim(" ");
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-       
-        require(msg.value == getPrice(), "005---msg.value error");
-        
-        //Management address to collect money
-        (bool success, ) = payable(_feeTo).call{value: msg.value}("");
-        require(success, "015---send matic to feeto address fail");
+
+        require(msg.value == getPrice(inviter_), "005---msg.value error");
+        bool success;
+        if(_invite.isInviter(inviter_)) {
+            (success, ) = payable(inviter_).call{value: msg.value * (100 - _invite._inviteDiscountRate()) / 100}("");
+            require(success, "015---send matic to inviter address fail");
+            (success, ) = payable(_feeTo).call{value: msg.value * _invite._inviteDiscountRate() / 100}("");
+        } else {
+            (success, ) = payable(_feeTo).call{value: msg.value}("");
+        }
+        require(success, "015---send matic to feeTo address fail");
+        _invite.addInviterCount(inviter_);
+
         //NFT
         uint256 tokenId = _addrMint();
         //ENS
@@ -187,7 +196,7 @@ contract SNSV2 is NFTV2 {
         _key.mint();
         emit Mint(_msgSender(), name_, tokenId);
     }
-    
+
 
     /**
      * @dev shortNameMint
@@ -254,7 +263,7 @@ contract SNSV2 is NFTV2 {
             }
             emit ManagerMint(_msgSender(), name_, to_, tokenId);
         }
-            
+
         return success;
     }
 
@@ -418,11 +427,12 @@ contract SNSV2 is NFTV2 {
 
     /**
      * @dev getPrice
+     * @param inviter_ inviter address
      */
-    function getPrice() public view  returns(uint256 price) {
+    function getPrice(address inviter_) public view returns(uint256 price) {
         uint256 tokenMinted = super.getTokenMinted();
         if(tokenMinted < 10000){
-            return 1 ether;
+            return 10**15;
         }else{
             uint256 times = super.getTokenMinted().div(_increasesNumber);
             price = 10 ether;
@@ -432,10 +442,9 @@ contract SNSV2 is NFTV2 {
                     price = price.mul(_increasesPrice).div(1 ether);
                 }
             }
-            
-            return price;
+            return _invite.getInviteDiscountPrice(price, inviter_);
         }
-        
+
     }
 
     /**
@@ -498,11 +507,11 @@ contract SNSV2 is NFTV2 {
         bool _coinsDestroy;
         uint256 _coinsDestroyPercentage;
     }
-    
+
     mapping(uint256 => Coin) private _coins;
 
     function setCoins(uint256 newCoinsType_,address newCoinsAddress_,uint256 coinsPrice_,bool coinsDestroy_,uint256 coinsDestroyPercentage_) external virtual assetsManagerAllowed(_msgSender()){
-        _coins[newCoinsType_]._coinAddress = newCoinsAddress_; 
+        _coins[newCoinsType_]._coinAddress = newCoinsAddress_;
         _coins[newCoinsType_]._coinsPrice = coinsPrice_;
         _coins[newCoinsType_]._coinsDestroy = coinsDestroy_;
         _coins[newCoinsType_]._coinsDestroyPercentage = coinsDestroyPercentage_;
@@ -512,8 +521,8 @@ contract SNSV2 is NFTV2 {
         return _coins[coinsType_]._coinAddress;
     }
 
-    function getCoinsPrice(uint256 coinsType_) view external returns (uint256){
-        return _coins[coinsType_]._coinsPrice;
+    function getCoinsPrice(uint256 coinsType_, address inviter_) view external returns (uint256){
+        return _invite.getInviteDiscountPrice(_coins[coinsType_]._coinsPrice, inviter_);
     }
 
     function getCoinsDestroy(uint256 coinsType_) view external returns (bool){
@@ -524,26 +533,34 @@ contract SNSV2 is NFTV2 {
         return _coins[coinsType_]._coinsDestroyPercentage;
     }
 
-    function mintByMoreCoins(string memory name_,uint256 coinsType_) external {
+    function mintByMoreCoins(string memory name_,uint256 coinsType_,address inviter_) external {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
-        name_ = name_.trim(" "); 
+        name_ = name_.trim(" ");
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-       
+
         // require(msg.value == getPrice(), "005---msg.value error");
-        
+
         //Management address to collect money
         require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= _coins[coinsType_]._coinsPrice,"019---allowance error!!!");
         bool success;
         if(_coins[coinsType_]._coinsDestroy){
             uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
             if(coinsDestroyPercentage != 0){
-                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),_coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
+                if(_invite.isInviter(inviter_)) {
+                    uint256 inviteRewardRate = 100 - _invite._inviteDiscountRate();
+                    require(inviteRewardRate < coinsDestroyPercentage, "033---coin destroyRate must be greater than inviteRewardRate");
+                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,_coins[coinsType_]._coinsPrice * inviteRewardRate / 100);
+                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),_coins[coinsType_]._coinsPrice * (coinsDestroyPercentage - inviteRewardRate) / 100 );
+                } else {
+                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),_coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
+                }
                 success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,_coins[coinsType_]._coinsPrice - _coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
             }
         }else{
             success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,_coins[coinsType_]._coinsPrice);
         }
-        require(success, "017---send coins to feeto address fail");
+        require(success, "017---send coins to feeTo address fail");
+        _invite.addInviterCount(inviter_);
         //NFT
         uint256 tokenId = _addrMint();
         //ENS
@@ -558,7 +575,23 @@ contract SNSV2 is NFTV2 {
     }
 
     function setFeeTo(address newFeeTo_) external virtual assetsManagerAllowed(_msgSender()){
-        _feeTo = newFeeTo_; 
+        _feeTo = newFeeTo_;
+    }
+
+
+
+    /**
+    *V2 update content:
+    *1. add invitation rebate mechanism
+    */
+
+    Invite private _invite;
+
+    /**
+    * Invite contract to be called after deployment is complete
+    */
+    function initializeInvite(address inviteAddress_) external virtual onlyOwner {
+        _invite = Invite(inviteAddress_);
     }
 
 }
