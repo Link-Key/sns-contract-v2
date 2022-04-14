@@ -432,7 +432,7 @@ contract SNSV2 is NFTV2 {
                     price = price.mul(_increasesPrice).div(1 ether);
                 }
             }
-            
+
             return price;
         }
         

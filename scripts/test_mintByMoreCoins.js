@@ -1,41 +1,35 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
-const hre = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
 
 async function main() {
   const SNSV2 = await ethers.getContractFactory('SNSV2')
-  const snsV2 = await SNSV2.attach('0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176')
+  const snsV2 = await SNSV2.attach('0x19AD2b1F012349645C3173EA63F98948A2b43d27')
   console.log('snsV2 load success')
 
   const coinsPrice = await snsV2.getCoinsPrice(1)
 
   const LinkKey = await ethers.getContractFactory('LinkKey')
   const linkkey = await LinkKey.attach(
-    '0xFA12F5ff3c2A137a02F1678E50c54276624b50FB',
+    '0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f',
   )
   console.log('linkkey load success')
 
   console.log('LinkKey approve ing...')
   const approveTx = await linkkey.approve(
-    '0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176',
+    '0x19AD2b1F012349645C3173EA63F98948A2b43d27',
     coinsPrice,
   )
   approveTx.wait()
   console.log('LinkKey approveTx success')
 
   const allowance = await linkkey.allowance(
-    '0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F',
-    '0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176',
+    '0x7A1A9567Dd868D24D49F00201107463b0114fe55',
+    '0x19AD2b1F012349645C3173EA63F98948A2b43d27',
   )
 
   console.log('coinsPrice:allowance', coinsPrice, allowance)
 
   console.log('SNS mintByMoreCoins ing...')
-  const mintByMoreCoinsTx = await snsV2.mintByMoreCoins('peifeng4', 1)
+  const mintByMoreCoinsTx = await snsV2.mintByMoreCoins('karma*', 1)
   mintByMoreCoinsTx.wait()
   console.log('SNS mintByMoreCoins success')
 }

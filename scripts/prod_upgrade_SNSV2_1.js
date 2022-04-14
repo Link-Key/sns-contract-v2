@@ -11,7 +11,7 @@ async function main() {
   const SNSV2 = await ethers.getContractFactory('SNSV2')
   console.log('Upgrading SNSV2...')
   const snsV2 = await upgrades.upgradeProxy(
-    '0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176',
+    '0x19AD2b1F012349645C3173EA63F98948A2b43d27',
     SNSV2,
   )
   await snsV2
