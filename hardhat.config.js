@@ -21,6 +21,8 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 const {
   alchemyApiKey,
+  alchemyApiKey1,
+  alchemyApiKey2,
   infuraKey,
   main_alchemyApiKey,
   mnemonic1,
@@ -81,7 +83,7 @@ module.exports = {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
-      gasPrice: 8000000000,
+      // gasPrice: 50000000000000,
     },
     polygon_test_account9: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
@@ -90,15 +92,22 @@ module.exports = {
     polygon_test_account10: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account10 },
+      gas: 2100000,
+      gasPrice: 8000000000,
     },
     polygon_test_account11: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account11 },
+      gas: 2100000,
+      gasPrice: 8000000000,
     },
     polygon_test_account12: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
-      accounts: { mnemonic: mnemonic_matemask_account11 },
+      accounts: { mnemonic: mnemonic_matemask_account12 },
+      gas: 2100000,
+      gasPrice: 8000000000,
     },
+
     tron_shasta_account1: {
       url: process.env.TRON_URL_Shasta + trongrid_key || '',
       accounts: { mnemonic: mnemonic_tronlink_sns1 },
