@@ -23,20 +23,14 @@ const {
   alchemyApiKey,
   alchemyApiKey1,
   alchemyApiKey2,
-  infuraKey,
   main_alchemyApiKey,
-  mnemonic1,
-  mnemonic2,
   mnemonic_matemask_account1,
   mnemonic_matemask_account9,
   mnemonic_matemask_account10,
   mnemonic_matemask_account11,
   mnemonic_matemask_account12,
-  mnemonic_zack,
-  trongrid_key,
-  mnemonic_tronlink_sns1,
-  mnemonic_tronlink_sns2,
-  mnemonic_tronlink_sns3,
+  mnemonic_matemask_account22,
+
 } = require('./secrets.json')
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -80,7 +74,7 @@ module.exports = {
       gasPrice: 50000000000,
     },
     polygon_test_account1: {
-      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+      url: process.env.POLYGON_URL_A + alchemyApiKey2 || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
       // gasPrice: 50000000000000,
@@ -107,11 +101,15 @@ module.exports = {
       gas: 2100000,
       gasPrice: 8000000000,
     },
-
-    tron_shasta_account1: {
-      url: process.env.TRON_URL_Shasta + trongrid_key || '',
-      accounts: { mnemonic: mnemonic_tronlink_sns1 },
+    polygon_test_account22: {
+      url: process.env.POLYGON_URL_A + alchemyApiKey || '',
+      accounts: { mnemonic: mnemonic_matemask_account22 },
+      gas: 2100000,
+      // gasPrice: 8000000000,
     },
+
+
+
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

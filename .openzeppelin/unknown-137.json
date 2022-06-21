@@ -3001,7 +3001,7 @@
           {
             "contract": "SNSV2_2",
             "label": "_resolverInfo",
-            "type": "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)9437_storage)",
+            "type": "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)11147_storage)",
             "src": "contracts/v2.2/SNSV2_2.sol:48"
           },
           {
@@ -3061,7 +3061,7 @@
           {
             "contract": "SNSV2_2",
             "label": "_coins",
-            "type": "t_mapping(t_uint256,t_struct(Coin)10700_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Coin)12410_storage)",
             "src": "contracts/v2.2/SNSV2_2.sol:502"
           }
         ],
@@ -3084,10 +3084,10 @@
           "t_address": {
             "label": "address"
           },
-          "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)9437_storage)": {
+          "t_mapping(t_string_memory_ptr,t_struct(ResolverInfo)11147_storage)": {
             "label": "mapping(string => struct SNSV2_2.ResolverInfo)"
           },
-          "t_struct(ResolverInfo)9437_storage": {
+          "t_struct(ResolverInfo)11147_storage": {
             "label": "struct SNSV2_2.ResolverInfo",
             "members": [
               {
@@ -3112,10 +3112,10 @@
           "t_mapping(t_string_memory_ptr,t_bool)": {
             "label": "mapping(string => bool)"
           },
-          "t_mapping(t_uint256,t_struct(Coin)10700_storage)": {
+          "t_mapping(t_uint256,t_struct(Coin)12410_storage)": {
             "label": "mapping(uint256 => struct SNSV2_2.Coin)"
           },
-          "t_struct(Coin)10700_storage": {
+          "t_struct(Coin)12410_storage": {
             "label": "struct SNSV2_2.Coin",
             "members": [
               {
