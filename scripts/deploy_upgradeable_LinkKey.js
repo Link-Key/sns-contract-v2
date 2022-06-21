@@ -8,8 +8,8 @@ async function main() {
   const linkKey = await upgrades.deployProxy(
     LinkKey,
     [
-      'linkkeyTest',
-      'lkt',
+      'linkkey',
+      'lk',
       1672329600,
       '0x863244EfC9a55113cadcdf38f964F12131B99e53',
       '0x863244EfC9a55113cadcdf38f964F12131B99e53',

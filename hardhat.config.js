@@ -61,10 +61,15 @@ module.exports = {
     //   url: process.env.POLYGON_URL_I + infuraKey || '',
     //   accounts: { mnemonic: mnemonic },
     // },
-    kava_test: {
-      url: 'https://evm.evm-alpha.kava.io' || '',
+    // kava_test: {
+    //   url: 'https://evm.evm-alpha.kava.io' || '',
+    //   accounts: { mnemonic: mnemonic },
+    // },
+    kava_mainnet: {
+      url: 'https://evm.kava.io' || '',
       accounts: { mnemonic: mnemonic },
-    }
+    },
+
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
