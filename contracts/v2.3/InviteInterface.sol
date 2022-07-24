@@ -11,6 +11,7 @@ pragma solidity ^0.8.0;
 interface InviteInterface {
     
     function addInviter() external;
+
     /**
      * @dev Add inviter counts
      * @param addr_ inviter address
@@ -42,5 +43,9 @@ interface InviteInterface {
     function getApplyInviterPrice() external view returns (uint256);
 
 
-    function _inviteDiscountRate() external view returns (uint256);
+    function inviteDiscountRate() external view returns (uint256);
+
+    function getInviterIncome(address invite_) external view returns (uint256);
+   
+    function setInviterIncome(address invite_,uint256 _newIncom) external ;
 }

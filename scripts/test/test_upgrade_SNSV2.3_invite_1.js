@@ -23,7 +23,14 @@ async function main() {
     },
   )
   await invite.deployed()
-  console.log('Invite deploy success')
+  console.log('Invite deploy success to:', invite.address)
+  // const invite = await Invite.attach(
+  //   '0xbacA24b102caa1C1Aa9A7C84b9ea6268481E7838',
+  // )
+  // console.log('Invite load success', invite)
+
+  // const result = await invite.inviteDiscountRate();
+  // console.log('result ...', result)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

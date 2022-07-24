@@ -158,25 +158,27 @@ contract SNSV2_3 is NFTV2 {
      * @dev After 1 MATIC/SNS, 10001 starts to charge 10 MATIC/SNS
      * @param name_ SNS name
      */
-    function mint(string memory name_,address inviter_) external payable {
+    function mint(string memory name_) external payable {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-        (uint256 maticPrice,,,) = getPrice(inviter_);
+        (uint256 maticPrice,,,) = getPrice(address(0));
         require(msg.value == maticPrice, "005---msg.value error");
         
         //Management address to collect money
         bool success;
-        if(_invite.isInviter(inviter_)) {
-            (success, ) = payable(inviter_).call{value: msg.value * (100 - _invite._inviteDiscountRate()) / 100}("");
-            require(success, "015---send matic to inviter address fail");
-            (success, ) = payable(_feeTo).call{value: msg.value * _invite._inviteDiscountRate() / 100}("");
-        } else {
-            (success, ) = payable(_feeTo).call{value: msg.value}("");
-        }
+        // if(_invite.isInviter(inviter_)) {
+        //     (success, ) = payable(inviter_).call{value: msg.value * (100 - _invite.inviteDiscountRate()) / 100}("");
+        //     require(success, "015---send matic to inviter address fail");
+        //     (success, ) = payable(_feeTo).call{value: msg.value * _invite.inviteDiscountRate() / 100}("");
+        // } else {
+        //     (success, ) = payable(_feeTo).call{value: msg.value}("");
+        // }
+        (success, ) = payable(_feeTo).call{value: msg.value}("");
         require(success, "015---send matic to feeto address fail");
 
-        _invite.addInviterCount(inviter_);
+        // _invite.addInviterCount(inviter_);
+
         //NFT
         uint256 tokenId = _addrMint();
         //ENS
@@ -373,10 +375,10 @@ contract SNSV2_3 is NFTV2 {
             usdcPrice += (tokenMinted.sub(20300).div(100)) * 25* 10**4;
         }
 
-        maticPrice = _invite.getInviteDiscountPrice(maticPrice, inviter_);
+        // maticPrice = _invite.getInviteDiscountPrice(maticPrice, inviter_);
         keyPrice = _invite.getInviteDiscountPrice(keyPrice, inviter_);
-        lowbPrice = _invite.getInviteDiscountPrice(lowbPrice, inviter_);
-        usdcPrice = _invite.getInviteDiscountPrice(usdcPrice, inviter_);
+        // lowbPrice = _invite.getInviteDiscountPrice(lowbPrice, inviter_);
+        // usdcPrice = _invite.getInviteDiscountPrice(usdcPrice, inviter_);
 
         return (maticPrice,keyPrice,lowbPrice,usdcPrice);
     }
@@ -453,7 +455,9 @@ contract SNSV2_3 is NFTV2 {
        
         // require(msg.value == getPrice(), "005---msg.value error");
         (,uint256 coinsPrices,uint256 lowbPrices,uint256 usdcPrices) = getPrice(inviter_);
-        
+        if(coinsType_!=1){
+            inviter_ = address(0);
+        }
         bool success;
         //lowb
         if(coinsType_ == 2){
@@ -461,8 +465,8 @@ contract SNSV2_3 is NFTV2 {
             uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
             if(coinsDestroyPercentage != 0){
                 if(_invite.isInviter(inviter_)) {
-                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,(lowbPrices * coinsDestroyPercentage / 100) * (100 - _invite._inviteDiscountRate()));
-                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(lowbPrices * coinsDestroyPercentage  / 100) * _invite._inviteDiscountRate());
+                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,(lowbPrices * coinsDestroyPercentage / 100) * (100 - _invite.inviteDiscountRate()) / 100);
+                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(lowbPrices * coinsDestroyPercentage  / 100) * _invite.inviteDiscountRate() / 100);
                 }else{
                     IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),lowbPrices * coinsDestroyPercentage / 100);
                 }
@@ -479,8 +483,10 @@ contract SNSV2_3 is NFTV2 {
                 uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
                 if(coinsDestroyPercentage != 0){
                     if(_invite.isInviter(inviter_)) {
-                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,(coinsPrices * coinsDestroyPercentage / 100) * (100 - _invite._inviteDiscountRate()));
-                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(coinsPrices * coinsDestroyPercentage  / 100) * _invite._inviteDiscountRate());
+                        uint256 inviterIncome = (coinsPrices * coinsDestroyPercentage / 100) * (100 - _invite.inviteDiscountRate()) / 100;
+                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,inviterIncome);
+                        _invite.setInviterIncome(inviter_,inviterIncome);
+                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(coinsPrices * coinsDestroyPercentage  / 100) * _invite.inviteDiscountRate() / 100);
                     }else{
                         IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),coinsPrices * coinsDestroyPercentage / 100);
                     }

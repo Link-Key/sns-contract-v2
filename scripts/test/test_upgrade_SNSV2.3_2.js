@@ -16,8 +16,8 @@ async function main() {
 
 
   // getCoinsInfo
-  const CoinsInfo = await snsV2_3.getCoinsInfo(2)
-  console.log('CoinsInfo', CoinsInfo)
+  // const CoinsInfo = await snsV2_3.getCoinsInfo(2)
+  // console.log('CoinsInfo', CoinsInfo)
 
   // get price
   const price = await snsV2_3.getPrice()

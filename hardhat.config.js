@@ -51,7 +51,7 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    //升级地址
+    //升级地址 invite合约管理地址
     polygon_main_account12: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account12 },
@@ -77,7 +77,7 @@ module.exports = {
       url: process.env.POLYGON_URL_A + alchemyApiKey2 || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
-      // gasPrice: 50000000000000,
+      gasPrice: 50000000000,
     },
     polygon_test_account9: {
       url: process.env.POLYGON_URL_A + alchemyApiKey || '',
