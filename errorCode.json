@@ -1,0 +1,104 @@
+{
+    "sns":{
+
+    },
+    "invite":[
+        {
+            "code":"100",
+            "errorMsg":"100---msg.sender is inviter"
+        },
+        {
+            "code":"101",
+            "errorMsg":"101---total inviters must be less than MAX_INVITER_AMOUNT"
+        },
+        {
+            "code":"102",
+            "errorMsg":"102---allowance error"
+        },
+        {
+            "code":"103",
+            "errorMsg":"103---send coins to feeTo address fail"
+        },
+        {
+            "code":"104",
+            "errorMsg":"104---addr_ is not inviter"
+        },
+        {
+            "code":"105",
+            "errorMsg":"105---price_ must be greater than 0"
+        },
+        {
+            "code":"106",
+            "errorMsg":"106---addr_ is not snsAddress"
+        }
+    ],
+    "satke":[
+        {
+            "code":"201",
+            "errorMsg":"not your token"
+        },
+        {
+            "code":"202",
+            "errorMsg":"you haven't stake NFT"
+        },
+        {
+            "code":"203",
+            "errorMsg":"followNFT not all ownerof you"
+        },
+        {
+            "code":"204",
+            "errorMsg":"groupNFT not all ownerof you"
+        }
+    ],
+    "trading":[
+        {
+            "code":"301",
+            "errorMsg":"you can't setOrder"
+        },
+        {
+            "code":"302",
+            "errorMsg":"don't setApprovedForAll"
+        },
+        {
+            "code":"303",
+            "errorMsg":"can't buy"
+        }
+    ],
+    "followNFT":[
+        {
+            "code":"401",
+            "errorMsg":"ownerMint too much"
+        },
+        {
+            "code":"402",
+            "errorMsg":"you have a this nft"
+        },
+        {
+            "code":"403",
+            "errorMsg":"mint too more"
+        },
+        {
+            "code":"404",
+            "errorMsg":"to address has a nft"
+        }
+    ],
+    "groupNFT":[
+        {
+            "code":"401",
+            "errorMsg":"ownerMint too much"
+        },
+        {
+            "code":"402",
+            "errorMsg":"you have a this nft"
+        },
+        {
+            "code":"403",
+            "errorMsg":"mint too more"
+        },
+        {
+            "code":"404",
+            "errorMsg":"to address has a nft"
+        }
+    ]
+        
+}

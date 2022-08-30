@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "localnetwork": "ganache --fork https://polygon-mumbai.g.alchemy.com/v2/zw25x1HBXmfGX7J6KDSc6HD0GAl8Vl5v"
   },
   "keywords": [],
   "author": "",
@@ -33,7 +34,8 @@
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.6",
-    "solidity-coverage": "^0.7.17"
+    "solidity-coverage": "^0.7.17",
+    "erc721a": "^4.1.0"
   },
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "^4.4.1",

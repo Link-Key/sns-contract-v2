@@ -1,0 +1,17 @@
+{
+    "testAddress":{
+        "keyAddress":"0xFA12F5ff3c2A137a02F1678E50c54276624b50FB",
+        "snsAddress":"0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176",
+        "inviteAddress":"0xC4FD81B29BD4EE39E232622867D4864ad503aC4a",
+        "stakeAddress":"0x53B8188e95e41E9BedA3D2e37b723129BA3A8985",
+        "tradingAddress":"0x21dBc1EE1591E08bE0a5c508374aA97475bD0dB9",
+        "followAddress":"0x893A1c39eeB1ec1E047d2D672e80911D8E2e1A33",
+        "groupAddress":"0xB919D27E3924f97BFdc8AD79c9b5a21eec735920"
+    },
+    "mainAddress":{
+        "keyAddress":"0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f",
+        "snsAddress":"0x19AD2b1F012349645C3173EA63F98948A2b43d27",
+        "inviteAddress":"0x1Be596e965e2566d2f211fea6b09898d0956c04E",
+        "snsResolverAddress":"0x08f4372e1CdBDcD958cF5ad6ECcb5637E64A9Ac7"
+    }
+}

@@ -77,6 +77,7 @@ module.exports = {
       url: process.env.POLYGON_URL_A + alchemyApiKey2 || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
+      gasLimit: 30000000,
       gasPrice: 50000000000,
     },
     polygon_test_account9: {
@@ -106,6 +107,18 @@ module.exports = {
       accounts: { mnemonic: mnemonic_matemask_account22 },
       gas: 2100000,
       // gasPrice: 8000000000,
+    },
+    local_account1: {
+      url: 'http://127.0.0.1:8545',
+      accounts: ['0x981fc499705439ea548be509dde0607668d3ab31b4ad1d253de216fc3ab07d99'],
+      gas: 2100000,
+    },
+    local_matamask_account1: {
+      url: 'http://127.0.0.1:8545',
+      accounts: { mnemonic: mnemonic_matemask_account1 },
+      gas: 2100000,
+      gasLimit: 30000000,
+      gasPrice: 50000000000,
     },
 
 
