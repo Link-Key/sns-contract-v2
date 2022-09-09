@@ -31,7 +31,7 @@ async function main() {
 
   // await setting(sns, stake, deployer.address);
 
-  // await upgradeStake(Stake)
+  await upgradeStake(Stake)
 
   // await stakeNFT(sns, stake, linkKey, deployer.address);
 
@@ -50,6 +50,8 @@ async function main() {
   // await testFollowNFT(deployer.address);
 
   // await testCreate();
+
+  // await transferNFT(followNFT, groupNFT, deployer.address)
 
 }
 
@@ -106,8 +108,10 @@ async function deployNewNFT(FollowNFT, GroupNFT, owner) {
     "test",
     "test",
     owner,
+    testAddress.keyAddress,
     ethers.BigNumber.from("1000000000000000000"),
-    150
+    150,
+    100
   )
   console.log('FollowNFT deploy success', followNFT.address)
 
@@ -116,8 +120,10 @@ async function deployNewNFT(FollowNFT, GroupNFT, owner) {
     "test",
     "test",
     owner,
+    testAddress.keyAddress,
     ethers.BigNumber.from("1000000000000000000"),
-    1500
+    1500,
+    100
   )
   console.log('GroupNFT deploy success', groupNFT.address)
 
@@ -138,7 +144,6 @@ async function attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT) {
 
   const followNFT = await FollowNFT.attach(testAddress.followAddress);
   console.log('followNFT attach success', followNFT.address)
-  console.log(followNFT)
 
   const groupNFT = await GroupNFT.attach(testAddress.groupAddress);
   console.log('groupNFT attach success', groupNFT.address)
@@ -147,13 +152,13 @@ async function attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT) {
 }
 
 async function setting(sns, stake, owner) {
-  console.log('sns setStakeAddress ing....')
-  const setStakeAddressTx = await sns.setStakeAddress(stake.address);
-  setStakeAddressTx.wait();
-  console.log('sns setStakeAddress success')
+  // console.log('sns setStakeAddress ing....')
+  // const setStakeAddressTx = await sns.setStakeAddress(stake.address);
+  // setStakeAddressTx.wait();
+  // console.log('sns setStakeAddress success')
 
   console.log('stake setAddress ing....')
-  const setAddressTx = await stake.setAddress(testAddress.snsAddress, owner, ethers.BigNumber.from("1000000000000000000"), testAddress.keyAddress);
+  const setAddressTx = await stake.setAddress(testAddress.snsAddress, owner, ethers.BigNumber.from("1000000000000000000"), ethers.BigNumber.from("10000000000000000000"), testAddress.keyAddress);
   setAddressTx.wait();
   console.log('stake setAddress success')
 
@@ -167,21 +172,21 @@ async function stakeNFT(sns, stake, linkKey, owner) {
   // const fee = await stake.getFee();
   // console.log('fee:', fee);
 
-  // console.log('linkKey approve ing...');
-  // const approveTx = await linkKey.approve(stake.address, ethers.BigNumber.from("1000000000000000000"))
-  // approveTx.wait()
-  // console.log('linkKey approve success...');
+  console.log('linkKey approve ing...');
+  const approveTx = await linkKey.approve(stake.address, ethers.BigNumber.from("1000000000000000000"))
+  approveTx.wait()
+  console.log('linkKey approve success...');
 
-  console.log('sns transfer ing...', sns);
-  console.log('sns transfer ing...');
-  const transferTx = await sns.transfer("0x96b5Ae79949b20f45Dd01566c4d896169CFCC521", tokenId)
-  transferTx.wait()
-  console.log('linkKey transfer success...');
+  // console.log('sns transfer ing...', sns);
+  // console.log('sns transfer ing...');
+  // const transferTx = await sns.transfer("0x96b5Ae79949b20f45Dd01566c4d896169CFCC521", tokenId)
+  // transferTx.wait()
+  // console.log('linkKey transfer success...');
 
-  // console.log('stake stakeNFT ing....')
-  // const stakeNFTTx = await stake.stakeNFT(tokenId);
-  // stakeNFTTx.wait();
-  // console.log('sns stakeNFT success')
+  console.log('stake stakeNFT ing....')
+  const stakeNFTTx = await stake.stakeNFT(tokenId, 1);
+  stakeNFTTx.wait();
+  console.log('sns stakeNFT success')
 }
 
 async function getNewNFTInfo(followNFT, groupNFT, owner) {
@@ -206,24 +211,24 @@ async function unstakeNFT(stake, owner) {
 
 async function setOrder(trading, followNFT, owner) {
   // console.log('followNFT:setApprovalForAll ing');
-  // const setApprovalForAllTx = await followNFT.setApprovalForAll(testAddress.tradingAddress, true);
-  // setApprovalForAllTx.wait();
-  // console.log('followNFT: setApprovalForAll success')
+  const setApprovalForAllTx = await followNFT.setApprovalForAll(testAddress.tradingAddress, true);
+  setApprovalForAllTx.wait();
+  console.log('followNFT: setApprovalForAll success')
 
   // console.log('followNFT:setApprovalForAll ing');
   // const setApprovalForAllTx = await followNFT.setApprovalForAll("0x96b5Ae79949b20f45Dd01566c4d896169CFCC521", true);
   // setApprovalForAllTx.wait();
   // console.log('followNFT: setApprovalForAll success')
 
-  console.log('followNFT:safeTransferFrom ing', followNFT);
-  const safeTransferFromTx = await followNFT.transferFrom("0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded", "0x96b5Ae79949b20f45Dd01566c4d896169CFCC521", 1);
-  safeTransferFromTx.wait();
-  console.log('followNFT: safeTransferFromTx success')
+  // console.log('followNFT:safeTransferFrom ing');
+  // const safeTransferFromTx = await followNFT.transferFrom("0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded", "0x7A1A9567Dd868D24D49F00201107463b0114fe55", 9);
+  // safeTransferFromTx.wait();
+  // console.log('followNFT: safeTransferFromTx success')
 
   // console.log('trading setOrder ing....')
-  // const setOrderTx = await trading.setOrder(testAddress.followAddress, testAddress.keyAddress, ethers.BigNumber.from("10000000000"), 10);
-  // setOrderTx.wait();
-  // console.log('trading setOrder success')
+  const setOrderTx = await trading.setOrder(testAddress.followAddress, testAddress.keyAddress, ethers.BigNumber.from("10000000000"), 9);
+  setOrderTx.wait();
+  console.log('trading setOrder success')
 
 }
 
@@ -237,18 +242,31 @@ async function cancelOrder(trading, owner) {
 
 async function buy(trading, linkKey, owner) {
   console.log('trading getOrder ing....')
-  const order = await trading.getOrder('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', testAddress.followAddress)
+  const order = await trading.getOrder('0xf27Ac7cff0C02C11794B9115248097BD040E4C9c', testAddress.followAddress)
   console.log('trading getOrder success', order)
 
-  // console.log('linkKey approve ing....')
-  // const approveTx = await linkKey.approve(trading.address, testAddress.followAddress)
-  // approveTx.wait()
-  // console.log('linkKey approve success')
+  console.log('linkKey approve ing....')
+  const approveTx = await linkKey.approve(trading.address, testAddress.followAddress)
+  approveTx.wait()
+  console.log('linkKey approve success')
 
   console.log('trading buy ing...')
-  const buyTx = await trading.buy('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', testAddress.followAddress, 1);
+  const buyTx = await trading.buy('0xf27Ac7cff0C02C11794B9115248097BD040E4C9c', testAddress.followAddress, 9);
   buyTx.wait();
   console.log('trading buy success')
+}
+
+async function transferNFT(followNFT, groupNFT, owner) {
+  // console.log('followNFT transfer ing....')
+  // const transferFN = await followNFT.transferFrom('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', '0x5435e8bb74d7ba8f4a76287dc0e75e203d87647e', 2)
+  // transferFN.wait()
+  // console.log('followNFT transfer success')
+
+  console.log('groupNFT transfer ing....')
+  const transferGN = await groupNFT.transferFrom('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', '0x5435e8bb74d7ba8f4a76287dc0e75e203d87647e', 2)
+  transferGN.wait()
+  console.log('groupNFT transfer success')
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

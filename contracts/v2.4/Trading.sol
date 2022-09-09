@@ -20,6 +20,8 @@ contract Trading is OwnableUpgradeable{
 
     struct Order{
         address nftOwner;
+        //add
+        address nftAddress;
         address erc20Address;
         uint256 erc20Amount;
         uint256 tokenId;
@@ -52,6 +54,7 @@ contract Trading is OwnableUpgradeable{
         require(_msgSender()!= owner && _msgSender() == IERC721(nftAddress_).ownerOf(tokenId),"301");
         require(IERC721(nftAddress_).isApprovedForAll(_msgSender(), address(this)),"302");
         _orders[_msgSender()][nftAddress_].nftOwner = owner;
+        _orders[_msgSender()][nftAddress_].nftAddress = nftAddress_;
         _orders[_msgSender()][nftAddress_].erc20Address = erc20Address;
         _orders[_msgSender()][nftAddress_].erc20Amount = erc20Amount;
         _orders[_msgSender()][nftAddress_].tokenId = tokenId;

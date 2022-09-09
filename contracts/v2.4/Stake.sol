@@ -26,6 +26,9 @@ contract Stake is OwnableUpgradeable{
     mapping(uint256 => uint256) private _feeAmounts;
     address private _keyAddress;
 
+    // address=>uint256=>bool creates 
+    mapping(address=>mapping(uint256=>bool)) private _isIssueNFT;
+
     event StakeNFT(address owner,uint256 tokenId,uint256 createType,uint256 stakeNFTAt);
 
     event UnstakeNFT(address owner,uint256 tokenId,uint256 unstakeNFTAt);
@@ -38,7 +41,7 @@ contract Stake is OwnableUpgradeable{
         _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;//test
         // _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;//main
 
-        _feeTo = 0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded;
+        _feeTo = 0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded;//test
         _feeAmounts[1] = 1 ether;
         _feeAmounts[2] = 10 ether;
     }
@@ -53,6 +56,7 @@ contract Stake is OwnableUpgradeable{
 
     //createType_ 1 followNFT 2 groupNFT
     function stakeNFT(uint256 tokenId_,uint256 createType_) public {
+        require(!_isIssueNFT[_msgSender()][createType_],"you have Issue");
         if(_feeAmounts[createType_]!=0){
             IERC20(_keyAddress).transferFrom(_msgSender(), _feeTo, _feeAmounts[createType_]);
         }
@@ -61,6 +65,7 @@ contract Stake is OwnableUpgradeable{
             ISns(_snsAddress).setStake(tokenId_, true);
             _stakedTokenIds[_msgSender()] = tokenId_;
         }
+        _isIssueNFT[_msgSender()][createType_] = true;
 
         emit StakeNFT(_msgSender(),tokenId_,createType_,block.timestamp);
     }
@@ -82,6 +87,14 @@ contract Stake is OwnableUpgradeable{
     function getFee(uint256 createType_) public view returns(address keyAddress,uint256 feeAmount){
         keyAddress = _keyAddress;
         feeAmount = _feeAmounts[createType_];
+    }
+
+    function getIsIssueNFT(address owner_,uint256 type_) public view returns(bool){
+        return _isIssueNFT[owner_][type_];
+    }
+
+    function getStakedTokenIds(address owner_) public view returns(uint256){
+        return _stakedTokenIds[owner_];
     }
 
     receive() external payable {

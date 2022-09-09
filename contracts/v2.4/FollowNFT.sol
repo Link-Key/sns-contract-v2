@@ -12,7 +12,7 @@ import "./INFT.sol";
 
 contract FollowNFT is ERC721AQueryable, Ownable,INFT{
 
-    address private _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;// test
+    address private _keyAddress;// test
     // address private _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;// main
     address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//test
     // address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//main
@@ -21,11 +21,12 @@ contract FollowNFT is ERC721AQueryable, Ownable,INFT{
     uint256 private _floorPrices;
     uint256 private _taxPreparation;
 
-    constructor(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
+    constructor(string memory nftName, string memory nftSymbol,address owner,address keyAddress,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
         require(ownerMintAccount<=150,"401");
         _stakeAddress = _msgSender();
-        _taxPreparation = taxPreparation;
+        _keyAddress = keyAddress;
         _floorPrices = floorPrices;
+        _taxPreparation = taxPreparation;
         _transferOwnership(owner);
         _safeMint(owner,ownerMintAccount);
     }

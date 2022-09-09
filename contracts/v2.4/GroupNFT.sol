@@ -12,19 +12,20 @@ import "./INFT.sol";
 
 contract GroupNFT is ERC721AQueryable, Ownable,INFT{
 
-    address private _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;// test
+    address private _keyAddress;// test
     // address private _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;// main
     address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//test
     // address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//main
     uint256 private _floorPrices;
     uint256 private _taxPreparation;
 
-    constructor(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
+    constructor(string memory nftName, string memory nftSymbol,address owner,address keyAddress,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
         require(ownerMintAccount<=1500,"401");
         _stakeAddress = _msgSender();
+        keyAddress = keyAddress;
         _floorPrices = floorPrices;
         _taxPreparation = taxPreparation;
-        transferOwnership(owner);
+        _transferOwnership(owner);
         _safeMint(owner,ownerMintAccount);
     }
    
@@ -41,6 +42,10 @@ contract GroupNFT is ERC721AQueryable, Ownable,INFT{
 
     function getTaxPreparation() public view returns(uint256 taxPreparation){
         taxPreparation = _taxPreparation;
+    }
+
+    function getFloorPrices() public view returns(uint256 floorPrices){
+        floorPrices = _floorPrices;
     }
 
     function kill() public {
