@@ -26,7 +26,7 @@ contract Stake is OwnableUpgradeable,CloneFactory{
     mapping(uint256 => uint256) private _feeAmounts;
     address private _keyAddress;
 
-    uint256 private _defauctFloorPrices;
+    uint256 private _defaultFloorPrices;
 
     struct StakeInfo{
         uint256 stakedTokenId;
@@ -66,7 +66,7 @@ contract Stake is OwnableUpgradeable,CloneFactory{
         _feeAmounts[1] = 1 ether;
         _feeAmounts[2] = 10 ether;
 
-        _defauctFloorPrices = 1 ether;
+        _defaultFloorPrices = 1 ether;
     }
 
     function setAddress(address snsAddress_,address feeTo_,uint256 feeAmount1_,uint256 feeAmount2_,address keyAddress_,address demoFollowNFTAddress_,address demoGroupNFTAddress_) public onlyOwner{
@@ -107,9 +107,9 @@ contract Stake is OwnableUpgradeable,CloneFactory{
         }
         _stakedInfos[_msgSender()].stakedTokenId = tokenId_;
         
-        INFT(newNFTAddress).initialize(newNFTName, newNFTName, _msgSender(), _defauctFloorPrices, ownerMintAccount_, taxPreparation_);
+        INFT(newNFTAddress).initialize(newNFTName, newNFTName, _msgSender(), _defaultFloorPrices, ownerMintAccount_, taxPreparation_);
         
-        emit StakeNFT(_msgSender(),tokenId_,createType_,newNFTAddress,newNFTName,newNFTName,_keyAddress,_defauctFloorPrices, ownerMintAccount_, taxPreparation_,block.timestamp);
+        emit StakeNFT(_msgSender(),tokenId_,createType_,newNFTAddress,newNFTName,newNFTName,_keyAddress,_defaultFloorPrices, ownerMintAccount_, taxPreparation_,block.timestamp);
     }
 
     function unstakeNFT() public {

@@ -25,7 +25,7 @@ contract Trading is OwnableUpgradeable{
         address erc20Address;
         uint256 erc20Amount;
         uint256 tokenId;
-        bool statu;
+        bool status;
     }
 
     mapping(address=>mapping(address=>Order)) private _orders;
@@ -58,13 +58,13 @@ contract Trading is OwnableUpgradeable{
         _orders[_msgSender()][nftAddress_].erc20Address = erc20Address;
         _orders[_msgSender()][nftAddress_].erc20Amount = erc20Amount;
         _orders[_msgSender()][nftAddress_].tokenId = tokenId;
-        _orders[_msgSender()][nftAddress_].statu = true;
+        _orders[_msgSender()][nftAddress_].status = true;
 
         emit ChangeOrder(_msgSender(), _orders[_msgSender()][nftAddress_],block.timestamp);
     }
 
     function cancelOrder(address nftAddress_) public{
-        _orders[_msgSender()][nftAddress_].statu = false;
+        _orders[_msgSender()][nftAddress_].status = false;
 
         delete _orders[_msgSender()][nftAddress_];
 
@@ -73,7 +73,7 @@ contract Trading is OwnableUpgradeable{
 
     function buy(address seller_,address nftAddress_,uint256 tokenId_) public {
         Order memory order = _orders[seller_][nftAddress_];
-        require(order.statu,"303");
+        require(order.status,"303");
         uint256 taxPreparation = INFT(nftAddress_).getTaxPreparation();
         uint256 feeAmount;
         uint256 taxPreparationAmount;
