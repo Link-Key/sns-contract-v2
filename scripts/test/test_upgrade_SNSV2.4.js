@@ -31,15 +31,17 @@ async function main() {
 
   // await setting(sns, stake, deployer.address);
 
-  await upgradeStake(Stake)
+  // await upgradeStake(Stake)
 
-  // await stakeNFT(sns, stake, linkKey, deployer.address);
+  // await upgradeTrading(Trading)
+
+  await stakeNFT(sns, stake, linkKey, deployer.address);
 
   // const { followNFT, groupNFT } = await deployNewNFT(FollowNFT, GroupNFT, deployer.address)
 
   // await getNewNFTInfo(followNFT, groupNFT, deployer.address);
 
-  await unstakeNFT(FollowNFT, stake, deployer.address);
+  // await unstakeNFT(FollowNFT, stake, deployer.address);
 
   // await setOrder(trading, followNFT, deployer.addres);
 
@@ -77,7 +79,19 @@ async function upgradeStake(Stake) {
   return stake
 }
 
+async function upgradeTrading(Trading) {
+  console.log('Trading upgrade ing....')
+  const trading = await upgrades.upgradeProxy(
+    testAddress.tradingAddress,
+    Trading,
+  )
+  await trading
+  console.log('Trading upgrade success')
+  return trading
+}
+
 async function deployNew(Stake, Trading) {
+  // const stake = null
   console.log('stake&trading deploy ing....')
   const stake = await upgrades.deployProxy(
     Stake,
@@ -89,16 +103,16 @@ async function deployNew(Stake, Trading) {
   await stake.deployed()
   console.log('stake deploy success', stake.address)
 
-  // const trading = null
-  const trading = await upgrades.deployProxy(
-    Trading,
-    [],
-    {
-      initializer: 'initialize',
-    },
-  )
-  await trading.deployed()
-  console.log('trading deploy success', trading.address)
+  const trading = null
+  // const trading = await upgrades.deployProxy(
+  //   Trading,
+  //   [],
+  //   {
+  //     initializer: 'initialize',
+  //   },
+  // )
+  // await trading.deployed()
+  // console.log('trading deploy success', trading.address)
 
   return { stake, trading }
 }
@@ -128,7 +142,7 @@ async function attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT) {
   const trading = await Trading.attach(testAddress.tradingAddress);
   console.log('trading attach success', trading.address)
 
-  const followNFT = await FollowNFT.attach(testAddress.cloneTradingAddress);
+  const followNFT = await FollowNFT.attach(testAddress.followAddress);
   console.log('followNFT attach success', followNFT.address)
 
   const groupNFT = await GroupNFT.attach(testAddress.groupAddress);
@@ -138,10 +152,10 @@ async function attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT) {
 }
 
 async function setting(sns, stake, owner) {
-  // console.log('sns setStakeAddress ing....')
-  // const setStakeAddressTx = await sns.setStakeAddress(stake.address);
-  // setStakeAddressTx.wait();
-  // console.log('sns setStakeAddress success')
+  console.log('sns setStakeAddress ing....')
+  const setStakeAddressTx = await sns.setStakeAddress(stake.address);
+  setStakeAddressTx.wait();
+  console.log('sns setStakeAddress success')
 
   console.log('stake setAddress ing....')
   const setAddressTx = await stake.setAddress(
@@ -150,8 +164,8 @@ async function setting(sns, stake, owner) {
     ethers.BigNumber.from("1000000000000000000"),
     ethers.BigNumber.from("10000000000000000000"),
     testAddress.keyAddress,
-    "0x96A0dAd54B39215D7AAb6d63e59060EcfD78e427",
-    "0xbeFF5FA15Ec737cCAdD6b5AfAeac434EeF07A87d");
+    "0x4be419Ac854833ff099c628Aa4A2A9D47E3D1436",
+    "0x61E1bBb3308eB75f0426F485eD48A6c3ebDdc00E");
   setAddressTx.wait();
   console.log('stake setAddress success')
 

@@ -34,10 +34,10 @@ contract FollowNFT is ERC721AQueryable, Ownable, INFT{
 
     function initialize(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) public override {
         _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;
-        _stakeAddress = 0xBe66287bf40d0FA4FF39087D3A43D3f39403D7B3;
-        _tradingAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;
+        _stakeAddress = 0x90e77A2C3975bCE646CC5B389c781EE80662345b;
+        _tradingAddress = 0xB1d8DCf3d31FF8A50F5023883332d03827009056;
         require(ownerMintAccount<=150,"401");
-        require(_msgSender() == 0xBe66287bf40d0FA4FF39087D3A43D3f39403D7B3,"not you");
+        require(_msgSender() == _stakeAddress,"not you");
         super._setNameAndSymbol(nftName,nftSymbol);
         _floorPrices = floorPrices;
         _taxPreparation = taxPreparation;
