@@ -90,7 +90,7 @@ contract Trading is OwnableUpgradeable{
 
         IERC721(nftAddress_).transferFrom(seller_, _msgSender(), tokenId_);
 
-        order.statu = false;
+        order.status = false;
         _orders[seller_][nftAddress_] = order;
 
         emit Buy(_msgSender(),seller_,order,block.timestamp);
