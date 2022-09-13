@@ -37,13 +37,37 @@ const {
  */
 module.exports = {
   solidity: {
-    version: '0.8.10',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 10,
+    compilers: [
+      {
+        version: "0.8.10",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 10,
+          },
+        },
       },
-    },
+    ], overrides: {
+      // "contracts/v2.4/Test.sol": {
+      //   version: "0.4.23",
+      //   settings: {
+      //     optimizer: {
+      //       enabled: true,
+      //       runs: 200,
+      //     },
+      //   },
+      // },
+      "@optionality.io/clone-factory/contracts/CloneFactory.sol": {
+        version: "0.4.23",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+
+    }
   },
   networks: {
     ropsten: {

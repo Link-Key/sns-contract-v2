@@ -20,6 +20,7 @@
     "@openzeppelin/test-helpers": "^0.5.15",
     "chai": "^4.3.4",
     "dotenv": "^10.0.0",
+    "erc721a": "^4.1.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
@@ -34,11 +35,11 @@
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.6",
-    "solidity-coverage": "^0.7.17",
-    "erc721a": "^4.1.0"
+    "solidity-coverage": "^0.7.17"
   },
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "^4.4.1",
+    "@optionality.io/clone-factory": "^0.2.1",
     "bignumber.js": "^9.0.2"
   }
 }

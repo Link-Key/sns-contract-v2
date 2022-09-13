@@ -3,36 +3,52 @@ pragma solidity ^0.8.2;
 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./ERC721AQueryable.sol";
-
 import "./INFT.sol";
 
-contract GroupNFT is ERC721AQueryable, Ownable,INFT{
+contract GroupNFT is ERC721AQueryable, Ownable, INFT{
 
     address private _keyAddress;// test
     // address private _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;// main
-    address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//test
+    address private _stakeAddress;//test
     // address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//main
+    address private _tradingAddress;//test
+    // address private _tradingAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//main
     uint256 private _floorPrices;
     uint256 private _taxPreparation;
 
-    constructor(string memory nftName, string memory nftSymbol,address owner,address keyAddress,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
+    // constructor(string memory nftName, string memory nftSymbol,address owner,address keyAddress,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
+    //     require(ownerMintAccount<=150,"401");
+    //     _stakeAddress = _msgSender();
+    //     _keyAddress = keyAddress;
+    //     _floorPrices = floorPrices;
+    //     _taxPreparation = taxPreparation;
+    //     _transferOwnership(owner);
+    //     _safeMint(owner,ownerMintAccount);
+    // }
+
+    constructor() ERC721A("", ""){
+    }
+
+    function initialize(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) public override {
+        _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;
+        _stakeAddress = 0xBe66287bf40d0FA4FF39087D3A43D3f39403D7B3;
+        _tradingAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;
         require(ownerMintAccount<=1500,"401");
-        _stakeAddress = _msgSender();
-        keyAddress = keyAddress;
+        require(_msgSender() == 0xBe66287bf40d0FA4FF39087D3A43D3f39403D7B3,"not you");
+        super._setNameAndSymbol(nftName,nftSymbol);
         _floorPrices = floorPrices;
         _taxPreparation = taxPreparation;
         _transferOwnership(owner);
         _safeMint(owner,ownerMintAccount);
     }
-   
+
     function safeMint() public {
         require(balanceOf(_msgSender())==0,"402");
         IERC20(_keyAddress).transferFrom(_msgSender(), owner(), _floorPrices);
-        require(totalSupply()<=1500,"003---mint too more");
+        require(totalSupply()<=1500,"403");
         _safeMint(_msgSender(),1);
     }
 
@@ -48,7 +64,7 @@ contract GroupNFT is ERC721AQueryable, Ownable,INFT{
         floorPrices = _floorPrices;
     }
 
-    function kill() public {
+    function kill() public override{
        if (_stakeAddress == _msgSender()) { // 权限检查
           selfdestruct(payable(0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded)); // 销毁合约
        }
@@ -65,9 +81,10 @@ contract GroupNFT is ERC721AQueryable, Ownable,INFT{
         address to,
         uint256 tokenId
     ) public virtual override(ERC721A) {
-       if(to != owner()){
+        if(to != owner()){
              require(balanceOf(to) == 0,"404");
         }
+        
         super.transferFrom(from,to,tokenId);
     }
 
@@ -88,13 +105,11 @@ contract GroupNFT is ERC721AQueryable, Ownable,INFT{
         uint256 tokenId,
         bytes memory _data
     ) public virtual override(ERC721A) {
-       if(to != owner()){
-             require(balanceOf(to) == 0,"404");
-        }
+        require(balanceOf(to) == 0,"404");
         super.safeTransferFrom(from,to,tokenId,_data);
     }
 
-     //transferOwnerShip
+    //transferOwnerShip
     function renounceOwnership() public override virtual onlyOwner {
        require(false,"you can't transferOwnership");
     }

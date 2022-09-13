@@ -39,7 +39,7 @@ async function main() {
 
   // await getNewNFTInfo(followNFT, groupNFT, deployer.address);
 
-  // await unstakeNFT(stake, deployer.address);
+  await unstakeNFT(FollowNFT, stake, deployer.address);
 
   // await setOrder(trading, followNFT, deployer.addres);
 
@@ -89,6 +89,7 @@ async function deployNew(Stake, Trading) {
   await stake.deployed()
   console.log('stake deploy success', stake.address)
 
+  // const trading = null
   const trading = await upgrades.deployProxy(
     Trading,
     [],
@@ -104,27 +105,12 @@ async function deployNew(Stake, Trading) {
 
 async function deployNewNFT(FollowNFT, GroupNFT, owner) {
   console.log('FollowNFT deploy ing....')
-  const followNFT = await FollowNFT.deploy(
-    "test",
-    "test",
-    owner,
-    testAddress.keyAddress,
-    ethers.BigNumber.from("1000000000000000000"),
-    150,
-    100
-  )
+  const followNFT = await FollowNFT.deploy()
   console.log('FollowNFT deploy success', followNFT.address)
 
+  // const groupNFT = null
   console.log('GroupNFT deploy ing....')
-  const groupNFT = await GroupNFT.deploy(
-    "test",
-    "test",
-    owner,
-    testAddress.keyAddress,
-    ethers.BigNumber.from("1000000000000000000"),
-    1500,
-    100
-  )
+  const groupNFT = await GroupNFT.deploy()
   console.log('GroupNFT deploy success', groupNFT.address)
 
   return { followNFT, groupNFT }
@@ -142,7 +128,7 @@ async function attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT) {
   const trading = await Trading.attach(testAddress.tradingAddress);
   console.log('trading attach success', trading.address)
 
-  const followNFT = await FollowNFT.attach(testAddress.followAddress);
+  const followNFT = await FollowNFT.attach(testAddress.cloneTradingAddress);
   console.log('followNFT attach success', followNFT.address)
 
   const groupNFT = await GroupNFT.attach(testAddress.groupAddress);
@@ -158,7 +144,14 @@ async function setting(sns, stake, owner) {
   // console.log('sns setStakeAddress success')
 
   console.log('stake setAddress ing....')
-  const setAddressTx = await stake.setAddress(testAddress.snsAddress, owner, ethers.BigNumber.from("1000000000000000000"), ethers.BigNumber.from("10000000000000000000"), testAddress.keyAddress);
+  const setAddressTx = await stake.setAddress(
+    testAddress.snsAddress,
+    owner,
+    ethers.BigNumber.from("1000000000000000000"),
+    ethers.BigNumber.from("10000000000000000000"),
+    testAddress.keyAddress,
+    "0x96A0dAd54B39215D7AAb6d63e59060EcfD78e427",
+    "0xbeFF5FA15Ec737cCAdD6b5AfAeac434EeF07A87d");
   setAddressTx.wait();
   console.log('stake setAddress success')
 
@@ -183,8 +176,13 @@ async function stakeNFT(sns, stake, linkKey, owner) {
   // transferTx.wait()
   // console.log('linkKey transfer success...');
 
+
+  // console.log('stake getStakedInfo ing....')
+  // const stakeInfo = await stake.getStakedInfo(owner);
+  // console.log('sns getStakedInfo success', stakeInfo)
+
   console.log('stake stakeNFT ing....')
-  const stakeNFTTx = await stake.stakeNFT(tokenId, 1);
+  const stakeNFTTx = await stake.stakeNFT(tokenId, 1, 150, 10);
   stakeNFTTx.wait();
   console.log('sns stakeNFT success')
 }
@@ -200,10 +198,21 @@ async function getNewNFTInfo(followNFT, groupNFT, owner) {
   // console.log('owner:groupTokenId:', groupTokenId);
 }
 
-async function unstakeNFT(stake, owner) {
+async function unstakeNFT(FollowNFT, stake, owner) {
+  console.log('stake getStakedInfo ing....')
+  const stakeInfo = await stake.getStakedInfo(owner);
+  console.log('sns getStakedInfo success', stakeInfo)
+
+  const followNFT = await FollowNFT.attach(stakeInfo.friendNFTAddress);
+  console.log('followNFT attach success', followNFT.address)
+  const totalSupply = await followNFT.totalSupply();
+  const balanceOf = await followNFT.balanceOf(owner);
+  console.log('totalSupply', totalSupply, ":balanceOf", balanceOf)
+
+
   //test transfer
   console.log('stake unstakeNFT ing....')
-  const unstakeNFTTx = await stake.unstakeNFT(testAddress.followAddress, testAddress.groupAddress);
+  const unstakeNFTTx = await stake.unstakeNFT();
   unstakeNFTTx.wait();
   console.log('sns unstakeNFT success')
   //test transfer
@@ -267,6 +276,16 @@ async function transferNFT(followNFT, groupNFT, owner) {
   transferGN.wait()
   console.log('groupNFT transfer success')
 
+}
+
+async function testCreate() {
+  const Test = await ethers.getContractFactory('Test')
+  console.log('Test deploy ing....')
+  const test = await Test.attach("0x2Fb2Bd06d165C94CDc5C5A818AF9CBA44086B7F9")
+  console.log('Test deploy success', test.address)
+  const createFoundationTx = await test.createFoundation()
+  createFoundationTx.wait()
+  console.log('Test createFoundation success')
 }
 
 // We recommend this pattern to be able to use async/await everywhere

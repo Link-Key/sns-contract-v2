@@ -117,6 +117,13 @@ contract ERC721A is IERC721A {
         _currentIndex = _startTokenId();
     }
 
+    function _setNameAndSymbol(string memory name_,string memory symbol_) internal {
+        _name = name_;
+        _symbol = symbol_;
+        _currentIndex = _startTokenId();
+    }
+
+
     /**
      * @dev Returns the starting token ID.
      * To change the starting token ID, please override this function.

@@ -3,14 +3,15 @@
         "keyAddress":"0xFA12F5ff3c2A137a02F1678E50c54276624b50FB",
         "snsAddress":"0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176",
         "inviteAddress":"0xC4FD81B29BD4EE39E232622867D4864ad503aC4a",
-        "stakeAddress":"0x53B8188e95e41E9BedA3D2e37b723129BA3A8985",
+        "stakeAddress":"0xBe66287bf40d0FA4FF39087D3A43D3f39403D7B3",
         "tradingAddress":"0xA9354498dCE9496f4c0054a5ae4C087697d3030b",
         "followAddress":"0x6495885a76038875812C6cF534ED0627763FdA33",
         "groupAddress":"0x156783D9c9FE93E64Cb334449Ffab3f8C84F9e2e",
         "followAddress1":"0xB1B08D30D9FaD20855ebD691447530cfFb0928a3",
         "groupAddress1":"0xd4D18a215D9291910b1E60369FCb793B47776D61",
         "followAddress2":"0xac3240982Ad24ac3c6c35B644fBb219b58d27608",
-        "groupAddress2":"0xed305b02729740c5130ba85c050B73f4aE7D8B8C"
+        "groupAddress2":"0xed305b02729740c5130ba85c050B73f4aE7D8B8C",
+        "cloneTradingAddress":"0x97B3A9531b9afcb6f4dAf189BdFd8954c7befD68"
         
     },
    
