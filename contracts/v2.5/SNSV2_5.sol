@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../util/LibString.sol";
 import "../util/Key.sol";
 import "../v2/NFTV2.sol";
-import "./ResolverV2_4.sol";
+import "../v1/SNSResolver.sol";
 import "../v2.3/InviteInterface.sol";
-import "./ISns.sol";
+import "../v2.4/ISns.sol";
 
-contract SNSV2_4 is NFTV2 , ISns{
+contract SNSV2_5 is NFTV2 , ISns{
     using SafeMathUpgradeable for uint256;
     using LibString for string;
 
@@ -197,10 +197,50 @@ contract SNSV2_4 is NFTV2 , ISns{
     /**
      * @dev shortNameMint
      * @param name_ SNS name
+     @param payWay_ 1:matic 2:key
      */
-    function shortNameMint(string memory name_) external virtual shortNameAllowed(_msgSender()){
+    function shortNameMint(string memory name_, uint256 payWay_) external virtual payable {
         name_ = name_.trim(" ");
         require(name_.lenOfChars() >= SHORT_LENGTH_MIN && name_.lenOfChars() >= SHORT_LENGTH_MAX, "015---name length error");
+        bool isOutOfferEndingTime = block.timestamp > _offerEndingTime;
+        uint256 feeAmount;
+        bool success;
+        bool isOffer;
+        if(!isOutOfferEndingTime){
+            if(_freeShortMint[_msgSender()]){
+                success = true;
+            }else{
+                if(_shortNameAllowedlist[_msgSender()]){
+                    isOffer = true;
+                }
+            }
+        }
+        if(!success && isOffer){
+            if(payWay_ == 1){
+                feeAmount = _priceOfShorts[3].maticPrice.mul(_percentage[1]).div(1000);
+                require(msg.value >= feeAmount,"feeAmount not enough");
+                (success, ) = payable(_feeTo).call{value: msg.value}("");
+            }else if(payWay_ == 2){
+                feeAmount = _priceOfShorts[3].keyPrice.mul(_percentage[1]).div(1000);
+                success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),_feeTo,feeAmount);
+            }else{
+                require(false,"error payWay");
+            }
+        }
+        if(!success && !isOffer){
+            if(payWay_ == 1){
+                feeAmount = _priceOfShorts[3].maticPrice;
+                require(msg.value >= feeAmount,"feeAmount not enough");
+                (success, ) = payable(_feeTo).call{value: msg.value}("");
+            }else if(payWay_ == 2){
+                feeAmount = _priceOfShorts[3].keyPrice;
+                success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),_feeTo,feeAmount);
+            }else{
+                require(false,"error payWay");
+            }
+        }
+        
+        require(success, "017---send coins to feeto address fail");
         //NFT
         uint256 tokenId = _addrMint();
 
@@ -227,7 +267,7 @@ contract SNSV2_4 is NFTV2 , ISns{
         _nameOfOwner[to_] = name_;
         _resolverInfo[name_].resolverAddress = _defaultResolverAddress;
         _resolverInfo[name_].owner = to_;
-        ResolverV2_4(_defaultResolverAddress).setRecords(name_, to_);
+        SNSResolver(_defaultResolverAddress).setRecords(name_, to_);
         _nameRegistered[name_] = true;
         _registered[to_] = true;
         return true;
@@ -309,7 +349,7 @@ contract SNSV2_4 is NFTV2 , ISns{
         _nameOfOwner[to_] = name_;
         _registered[form_] = false;
         _registered[to_] = true;
-        ResolverV2_4(_defaultResolverAddress).setRecords(name_, to_);
+        SNSResolver(_defaultResolverAddress).setRecords(name_, to_);
         emit TransferName(_msgSender(), form_, to_, name_);
         return true;
     }
@@ -548,5 +588,43 @@ contract SNSV2_4 is NFTV2 , ISns{
     *Lowb contract address (Polygon):0x1c0a798b5a5273a9e54028eb1524fd337b24145f
     *loser foundation address: 0x1EC0E4DC543566f26B73800700080B4b2f3fD208
      */
+
+
+    //Three-digit registration fee
+    struct PriceOfShort{
+        uint256 maticPrice;
+        address keyAddress;
+        uint256 keyPrice;
+    }
+
+    mapping(uint256 => PriceOfShort) public _priceOfShorts;
+
+    uint256 public _offerEndingTime;
+
+    mapping(address => bool) public _freeShortMint;
+
+    //1 : 50% 2:0
+    mapping(uint256 => uint256) public _percentage;
+
+    /**
+     * @dev setPriceOfShorts
+     * v2.5 
+     */
+    function setPriceOfShorts(uint256 shortLength_,uint256 maticPrice_,address keyAddress_,uint256 keyPrice_) external virtual onlyOwner {
+        _priceOfShorts[shortLength_].maticPrice = maticPrice_;
+        _priceOfShorts[shortLength_].keyAddress = keyAddress_;
+        _priceOfShorts[shortLength_].keyPrice = keyPrice_;
+    }
+
+    function setOfferEndingTime(uint256 offerEndingTime_) external virtual onlyOwner {
+        _offerEndingTime = offerEndingTime_;
+    }
+
+    function setFreeShortMint(address[] memory addrs_,bool isFreeShortMint_) external virtual onlyOwner {
+        for (uint256 i = 0; i < addrs_.length; i ++) {
+            _freeShortMint[addrs_[i]] = isFreeShortMint_;
+        }
+    }
+
 
 }

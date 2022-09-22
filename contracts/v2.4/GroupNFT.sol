@@ -10,30 +10,17 @@ import "./INFT.sol";
 
 contract GroupNFT is ERC721AQueryable, Ownable, INFT{
 
-    address private _keyAddress;// test
-    // address private _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;// main
-    address private _stakeAddress;//test
-    // address private _stakeAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//main
-    address private _tradingAddress;//test
-    // address private _tradingAddress = 0x472CeBBa2D856485d5752506806241Eaf284e1ea;//main
+    address private _keyAddress;
+    address private _stakeAddress;
+    address private _tradingAddress;
     uint256 private _floorPrices;
     uint256 private _taxPreparation;
-
-    // constructor(string memory nftName, string memory nftSymbol,address owner,address keyAddress,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) ERC721A(nftName, nftSymbol){
-    //     require(ownerMintAccount<=150,"401");
-    //     _stakeAddress = _msgSender();
-    //     _keyAddress = keyAddress;
-    //     _floorPrices = floorPrices;
-    //     _taxPreparation = taxPreparation;
-    //     _transferOwnership(owner);
-    //     _safeMint(owner,ownerMintAccount);
-    // }
 
     constructor() ERC721A("", ""){
     }
 
     function initialize(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) public override {
-        _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;
+        _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;
         _stakeAddress = 0x279339127a5B4b7580044E5De0DBEA201e0BF723;
         _tradingAddress = 0xB1d8DCf3d31FF8A50F5023883332d03827009056;
         require(ownerMintAccount<=1500,"401");

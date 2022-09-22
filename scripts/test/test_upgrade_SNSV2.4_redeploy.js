@@ -21,14 +21,20 @@ async function main() {
   const GroupNFT = await ethers.getContractFactory('GroupNFT')
   const LinkKey = await ethers.getContractFactory('LinkKey')
   const SNSResolver = await ethers.getContractFactory('SNSResolver')
+  const Invite = await ethers.getContractFactory('Invite')
 
   const linkKey = await LinkKey.attach(testAddress.keyAddress)
   console.log('LinkKey deployed to:', linkKey.address)
 
-  // const sns = await upgradeSns(SNSV2_4);
-  // const { stake, trading } = await deployNew(Stake, Trading);
+  // const { sns, snsResolver, stake, trading } = await deploy(SNSV2_4, SNSResolver, Stake, Trading, deployer.address);
 
-  const { sns, stake, trading, followNFT, groupNFT } = await attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT)
+  // const { invite } = await loadInvite(Invite)
+
+  // await snsSetting(sns, snsResolver, invite, stake, trading, deployer.address);
+
+  const { sns, stake, trading } = await attachOld(SNSV2_4, Stake, Trading)
+
+  await snsSetCoin(sns, deployer.address);
 
   // await setting(sns, stake, deployer.address);
 
@@ -46,7 +52,7 @@ async function main() {
 
   // await unstakeNFT(FollowNFT, stake, deployer.address);
 
-  await setOrder(stake, FollowNFT, trading, deployer.address);
+  // await setOrder(stake, FollowNFT, trading, deployer.address);
 
   // await cancelOrder(trading);
 
@@ -62,42 +68,33 @@ async function main() {
 
 }
 
-async function upgradeSns(SNSV2_4) {
-  console.log('sns upgrade ing....')
-  const sns = await upgrades.upgradeProxy(
-    testAddress.snsAddress,
+async function deploy(SNSV2_4, SNSResolver, Stake, Trading, owner) {
+
+  console.log('sns&snsResolverg deploy ing....')
+  const sns = await upgrades.deployProxy(
     SNSV2_4,
+    [testAddress.keyAddress,
+      "SNSTest",
+      "SNST",
+      owner
+    ],
+    {
+      initializer: 'initialize',
+    },
   )
-  await sns
-  console.log('sns upgrade success')
-  return sns
-}
+  await sns.deployed()
+  console.log('sns deploy success', sns.address)
 
-async function upgradeStake(Stake) {
-  console.log('stake upgrade ing....')
-  const stake = await upgrades.upgradeProxy(
-    testAddress.stakeAddress,
-    // "0x279339127a5B4b7580044E5De0DBEA201e0BF723",
-    Stake,
+  const snsResolver = await upgrades.deployProxy(
+    SNSResolver,
+    [sns.address],
+    {
+      initializer: 'initialize',
+    },
   )
-  await stake
-  console.log('stake upgrade success')
-  return stake
-}
+  await snsResolver.deployed()
+  console.log('snsResolver deploy success', snsResolver.address)
 
-async function upgradeTrading(Trading) {
-  console.log('Trading upgrade ing....')
-  const trading = await upgrades.upgradeProxy(
-    testAddress.tradingAddress,
-    Trading,
-  )
-  await trading
-  console.log('Trading upgrade success')
-  return trading
-}
-
-async function deployNew(Stake, Trading) {
-  // const stake = null
   console.log('stake&trading deploy ing....')
   const stake = await upgrades.deployProxy(
     Stake,
@@ -109,18 +106,130 @@ async function deployNew(Stake, Trading) {
   await stake.deployed()
   console.log('stake deploy success', stake.address)
 
-  const trading = null
-  // const trading = await upgrades.deployProxy(
-  //   Trading,
-  //   [],
-  //   {
-  //     initializer: 'initialize',
-  //   },
-  // )
-  // await trading.deployed()
-  // console.log('trading deploy success', trading.address)
+  const trading = await upgrades.deployProxy(
+    Trading,
+    [],
+    {
+      initializer: 'initialize',
+    },
+  )
+  await trading.deployed()
+  console.log('trading deploy success', trading.address)
 
-  return { stake, trading }
+  return { sns, snsResolver, stake, trading }
+}
+
+async function snsSetting(sns, snsResolver, invite, stake, trading, owner) {
+  console.log('sns setDefaultResolverAddress ing....')
+  const setDefaultResolverAddressTx = await sns.setDefaultResolverAddress(snsResolver.address);
+  setDefaultResolverAddressTx.wait();
+  console.log('sns setDefaultResolverAddress success')
+
+  console.log('sns initializeInvite ing....')
+  const initializeInviteTx = await sns.initializeInvite(invite.address);
+  initializeInviteTx.wait();
+  console.log('sns initializeInvite success')
+
+
+  console.log('sns setCoins ing....')
+  const setCoinsTx = await sns.setCoins(
+    1,
+    testAddress.keyAddress,
+    ethers.BigNumber.from("1000000000000000000"),
+    true,
+    10
+  )
+  setCoinsTx.wait();
+
+  const setCoinsTx1 = await sns.setCoins(
+    2,
+    testAddress.keyAddress,
+    ethers.BigNumber.from("1000000000000000000"),
+    true,
+    10
+  )
+  setCoinsTx1.wait();
+
+  const setCoinsTx2 = await sns.setCoins(
+    3,
+    testAddress.keyAddress,
+    ethers.BigNumber.from("1000000000000000000"),
+    true,
+    10
+  )
+  setCoinsTx2.wait();
+  console.log('sns setCoins success')
+
+  console.log('sns setStakeAddress ing....')
+  const setStakeAddressTx = await sns.setStakeAddress(stake.address);
+  setStakeAddressTx.wait();
+  console.log('sns setStakeAddress success')
+
+  console.log('stake setAddress ing....')
+  const setAddressTx = await stake.setAddress(
+    sns.address,
+    owner,
+    ethers.BigNumber.from("1000000000000000000"),
+    ethers.BigNumber.from("10000000000000000000"),
+    testAddress.keyAddress,
+    "0x36144dA36EBbEB1b8Cf24795Ca641E315241fC7E",
+    "0xE080b9152A9BF4d57E87dC8F111Da069215013b9",
+    ethers.BigNumber.from("1000000000000000000"),
+    ethers.BigNumber.from("10000000000000000000")
+  );
+  setAddressTx.wait();
+  console.log('stake setAddress success')
+
+}
+
+async function snsSetCoin(sns, owner) {
+  console.log('sns setAssetsManager ing....')
+  const setAssetsManagerTx = await sns.setAssetsManager([owner], true);
+  setAssetsManagerTx.wait();
+  console.log('sns setAssetsManager success')
+
+  console.log('sns setCoins ing....')
+  const setCoinsTx = await sns.setCoins(
+    1,
+    testAddress.keyAddress,
+    ethers.BigNumber.from("1000000000000000000"),
+    true,
+    10
+  )
+  setCoinsTx.wait();
+
+  const setCoinsTx1 = await sns.setCoins(
+    2,
+    testAddress.keyAddress,
+    ethers.BigNumber.from("1000000000000000000"),
+    true,
+    10
+  )
+  setCoinsTx1.wait();
+
+  const setCoinsTx2 = await sns.setCoins(
+    3,
+    testAddress.keyAddress,
+    ethers.BigNumber.from("1000000000000000000"),
+    true,
+    10
+  )
+  setCoinsTx2.wait();
+  console.log('sns setCoins success')
+
+}
+
+async function loadInvite(Invite) {
+
+  console.log('invite load ing....')
+  const invite = await Invite.attach(
+    testAddress.inviteAddress
+  );
+  console.log('invite load success')
+
+  return {
+    invite
+  }
 }
 
 async function deployNewNFT(FollowNFT, GroupNFT, owner) {
@@ -136,25 +245,19 @@ async function deployNewNFT(FollowNFT, GroupNFT, owner) {
   return { followNFT, groupNFT }
 }
 
-async function attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT) {
+async function attachOld(SNSV2_4, Stake, Trading) {
   console.log('sns&stake&trading attach ing....')
 
-  const sns = await SNSV2_4.attach(testAddress.snsAddress);
+  const sns = await SNSV2_4.attach(testAddress.newSnsAddress);
   console.log('sns attach success', sns.address)
 
-  const stake = await Stake.attach(testAddress.stakeAddress);
+  const stake = await Stake.attach(testAddress.newStakeAddress);
   console.log('stake attach success', stake.address)
 
-  const trading = await Trading.attach(testAddress.tradingAddress);
+  const trading = await Trading.attach(testAddress.newTradingAddress);
   console.log('trading attach success', trading.address)
 
-  const followNFT = await FollowNFT.attach(testAddress.followAddress);
-  console.log('followNFT attach success', followNFT.address)
-
-  const groupNFT = await GroupNFT.attach(testAddress.groupAddress);
-  console.log('groupNFT attach success', groupNFT.address)
-
-  return { sns, stake, trading, followNFT, groupNFT }
+  return { sns, stake, trading }
 }
 
 async function setting(sns, stake, owner) {
@@ -362,14 +465,6 @@ async function upgradeSNSResolver(SNSResolver) {
   return snsResolver
 }
 
-//测试数据
-// 1.账户1 质押发行followNFT（FN1） 100
-// 2.账户2 mint 1个 FN1
-// 3.账户2 setOrder FN1
-// 4.账户3 mint 1个 FN1
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error)
   process.exitCode = 1

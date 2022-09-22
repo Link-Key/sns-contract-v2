@@ -7,7 +7,11 @@
         "stakeAddress":"0x279339127a5B4b7580044E5De0DBEA201e0BF723",
         "tradingAddress":"0xB1d8DCf3d31FF8A50F5023883332d03827009056",
         "followAddress":"0x36144dA36EBbEB1b8Cf24795Ca641E315241fC7E",
-        "groupAddress":"0xE080b9152A9BF4d57E87dC8F111Da069215013b9"
+        "groupAddress":"0xE080b9152A9BF4d57E87dC8F111Da069215013b9",
+        "newSnsAddress":"0x362945C3ffa822854240788EcdB509f104E56588",
+        "newSnsResolverAddress":"0xb5f4eA9970Ad78B7dbCB0c5FF7835A93e36c40B6",
+        "newStakeAddress":"0xaA4F164fE5992CF7940C502aa2fDf53aFE09cD54",
+        "newTradingAddress":"0xB6Da7994180a6F074B0E1221ad8b4f89179088CA"
     },
    
     "mainAddress":{

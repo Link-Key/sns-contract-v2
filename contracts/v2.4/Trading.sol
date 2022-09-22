@@ -48,6 +48,11 @@ contract Trading is OwnableUpgradeable{
         _feeRate = feeRate_;
         _feeTo = feeTo_;
     }
+    // add getFee
+    function getFee() public view returns(address feeTo,uint256 feeRate){
+        feeTo = _feeTo;
+        feeRate = _feeRate;
+    }
 
     function setOrder(address nftAddress_,address erc20Address,uint256 erc20Amount, uint256 tokenId) public{
         address owner = OwnableUpgradeable(nftAddress_).owner();

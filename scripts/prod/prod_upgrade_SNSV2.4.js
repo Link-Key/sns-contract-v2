@@ -6,7 +6,7 @@
 const hre = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
 const {
-  testAddress, mainAddress
+  mainAddress
 } = require('../../address.json')
 
 async function main() {
@@ -25,12 +25,12 @@ async function main() {
   const linkKey = await LinkKey.attach(testAddress.keyAddress)
   console.log('LinkKey deployed to:', linkKey.address)
 
-  // const sns = await upgradeSns(SNSV2_4);
-  // const { stake, trading } = await deployNew(Stake, Trading);
-
-  const { sns, stake, trading, followNFT, groupNFT } = await attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT)
-
+  const sns = await upgradeSns(SNSV2_4);
+  const { stake, trading } = await deployNew(Stake, Trading);
+  const { followNFT, groupNFT } = await deployNewNFT(FollowNFT, GroupNFT, deployer.address)
   // await setting(sns, stake, deployer.address);
+
+  // const { sns, stake, trading, followNFT, groupNFT } = await attachOld(SNSV2_4, Stake, Trading, FollowNFT, GroupNFT)
 
   // await upgradeStake(Stake)
 
@@ -40,13 +40,11 @@ async function main() {
 
   // await mint(stake, FollowNFT, linkKey, deployer.address)
 
-  // const { followNFT, groupNFT } = await deployNewNFT(FollowNFT, GroupNFT, deployer.address)
-
   // await getNewNFTInfo(followNFT, groupNFT, deployer.address);
 
   // await unstakeNFT(FollowNFT, stake, deployer.address);
 
-  await setOrder(stake, FollowNFT, trading, deployer.address);
+  // await setOrder(stake, FollowNFT, trading, deployer.address);
 
   // await cancelOrder(trading);
 
@@ -65,7 +63,7 @@ async function main() {
 async function upgradeSns(SNSV2_4) {
   console.log('sns upgrade ing....')
   const sns = await upgrades.upgradeProxy(
-    testAddress.snsAddress,
+    mainAddress.snsAddress,
     SNSV2_4,
   )
   await sns
@@ -109,16 +107,16 @@ async function deployNew(Stake, Trading) {
   await stake.deployed()
   console.log('stake deploy success', stake.address)
 
-  const trading = null
-  // const trading = await upgrades.deployProxy(
-  //   Trading,
-  //   [],
-  //   {
-  //     initializer: 'initialize',
-  //   },
-  // )
-  // await trading.deployed()
-  // console.log('trading deploy success', trading.address)
+  // const trading = null
+  const trading = await upgrades.deployProxy(
+    Trading,
+    [],
+    {
+      initializer: 'initialize',
+    },
+  )
+  await trading.deployed()
+  console.log('trading deploy success', trading.address)
 
   return { stake, trading }
 }

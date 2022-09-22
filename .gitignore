@@ -9,6 +9,4 @@ secrets.json
 cache
 artifacts
 
-/.openzeppelin/
-
 .idea
