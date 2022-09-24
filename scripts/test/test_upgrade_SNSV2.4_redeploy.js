@@ -34,37 +34,11 @@ async function main() {
 
   const { sns, stake, trading } = await attachOld(SNSV2_4, Stake, Trading)
 
-  await snsSetCoin(sns, deployer.address);
+  // await snsSetCoin(sns, deployer.address);
 
-  // await setting(sns, stake, deployer.address);
+  // await inviteSet(invite)
 
-  // await upgradeStake(Stake)
-
-  // await upgradeTrading(Trading)
-
-  // await stakeNFT(sns, stake, linkKey, deployer.address);
-
-  // await mint(stake, FollowNFT, linkKey, deployer.address)
-
-  // const { followNFT, groupNFT } = await deployNewNFT(FollowNFT, GroupNFT, deployer.address)
-
-  // await getNewNFTInfo(followNFT, groupNFT, deployer.address);
-
-  // await unstakeNFT(FollowNFT, stake, deployer.address);
-
-  // await setOrder(stake, FollowNFT, trading, deployer.address);
-
-  // await cancelOrder(trading);
-
-  // await buy(trading, linkKey, deployer.address);
-
-  // await testFollowNFT(deployer.address);
-
-  // await testCreate();
-
-  // await transferNFT(followNFT, groupNFT, deployer.address)
-
-  // await upgradeSNSResolver(SNSResolver)
+  await testMint(sns)
 
 }
 
@@ -232,18 +206,17 @@ async function loadInvite(Invite) {
   }
 }
 
-async function deployNewNFT(FollowNFT, GroupNFT, owner) {
-  console.log('FollowNFT deploy ing....')
-  const followNFT = await FollowNFT.deploy()
-  console.log('FollowNFT deploy success', followNFT.address)
+async function inviteSet(invite) {
 
-  // const groupNFT = null
-  console.log('GroupNFT deploy ing....')
-  const groupNFT = await GroupNFT.deploy()
-  console.log('GroupNFT deploy success', groupNFT.address)
-
-  return { followNFT, groupNFT }
+  console.log('invite updateAddress ing....')
+  const updateAddressTx = await invite.updateAddress(
+    testAddress.newSnsAddress,
+    1
+  );
+  updateAddressTx.wait()
+  console.log('invite updateAddress success')
 }
+
 
 async function attachOld(SNSV2_4, Stake, Trading) {
   console.log('sns&stake&trading attach ing....')
@@ -280,189 +253,23 @@ async function setting(sns, stake, owner) {
 
 }
 
-async function stakeNFT(sns, stake, linkKey, owner) {
-  const balance = await sns.balanceOf(owner);
-  const tokenId = await sns.tokenOfOwnerByIndex(owner, balance - 1)
-  console.log('owner:tokenId:', tokenId);
+async function testMint(sns) {
+  const price = await sns.getPrice('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded')
+  // const maticPrice = price.maticPrice
+  console.log('price', price)
+  const keyPrice = price.keyPrice
+  console.log('keyPrice', keyPrice)
 
-  // const fee = await stake.getFee();
-  // console.log('fee:', fee);
+  const maticPrice = price.maticPrice
+  console.log('maticPrice', maticPrice)
 
-  console.log('linkKey approve ing...');
-  const approveTx = await linkKey.approve(stake.address, ethers.BigNumber.from("1000000000000000000"))
-  approveTx.wait()
-  console.log('linkKey approve success...');
+  console.log('SNS Mint ing...')
+  const mintTx = await sns.mint('peifeng', {
+    value: maticPrice,
+  })
+  await mintTx.wait()
+  console.log('SNS Mint success')
 
-  // console.log('sns transfer ing...', sns);
-  // console.log('sns transfer ing...');
-  // const transferTx = await sns.transfer("0x96b5Ae79949b20f45Dd01566c4d896169CFCC521", tokenId)
-  // transferTx.wait()
-  // console.log('linkKey transfer success...');
-
-
-  // console.log('stake getStakedInfo ing....')
-  // const stakeInfo = await stake.getStakedInfo(owner);
-  // console.log('sns getStakedInfo success', stakeInfo)
-
-  console.log('stake stakeNFT ing....')
-  const stakeNFTTx = await stake.stakeNFT(tokenId, 1, 10, 10);
-  stakeNFTTx.wait();
-  console.log('sns stakeNFT success')
-}
-
-async function getNewNFTInfo(followNFT, groupNFT, owner) {
-  const followBalance = await followNFT.balanceOf(owner);
-  console.log('owner:followBalance:', followBalance);
-  const groupBalance = await groupNFT.balanceOf(owner);
-  console.log('owner:groupBalance:', groupBalance);
-  // const followTokenId = await followNFT.tokensOfOwner(owner)
-  // console.log('owner:followTokenId:', followTokenId);
-  // const groupTokenId = await groupNFT.tokensOfOwnerIn(owner, 0, 150)
-  // console.log('owner:groupTokenId:', groupTokenId);
-}
-
-async function mint(stake, FollowNFT, linkKey, owner) {
-  console.log('stake getStakedInfo ing....')
-  const stakeInfo = await stake.getStakedInfo('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded');
-  console.log('sns getStakedInfo success', stakeInfo)
-
-  const followNFT = await FollowNFT.attach(stakeInfo.friendNFTAddress);
-  console.log('followNFT attach success', followNFT.address)
-
-  const floorPrices = await followNFT.getFloorPrices();
-  console.log('floorPrices:', floorPrices);
-
-  console.log('linkKey approve ing...');
-  const approveTx = await linkKey.approve(followNFT.address, floorPrices)
-  approveTx.wait()
-  console.log('linkKey approve success...');
-
-  console.log('followNFT safeMint ing....')
-  const safeMintTx = await followNFT.safeMint();
-  safeMintTx.wait();
-  console.log('followNFT safeMint success')
-
-  const totalSupply = await followNFT.totalSupply();
-  const balanceOf = await followNFT.balanceOf(owner);
-  console.log('totalSupply', totalSupply, ":balanceOf", balanceOf)
-}
-
-async function unstakeNFT(FollowNFT, stake, owner) {
-  console.log('stake getStakedInfo ing....')
-  const stakeInfo = await stake.getStakedInfo(owner);
-  console.log('sns getStakedInfo success', stakeInfo)
-
-  const followNFT = await FollowNFT.attach(stakeInfo.friendNFTAddress);
-  console.log('followNFT attach success', followNFT.address)
-  const totalSupply = await followNFT.totalSupply();
-  const balanceOf = await followNFT.balanceOf(owner);
-  console.log('totalSupply', totalSupply, ":balanceOf", balanceOf)
-
-
-  //test transfer
-  console.log('stake unstakeNFT ing....')
-  const unstakeNFTTx = await stake.unstakeNFT();
-  unstakeNFTTx.wait();
-  console.log('sns unstakeNFT success')
-  //test transfer
-}
-
-async function setOrder(stake, FollowNFT, trading, owner) {
-  console.log('stake getStakedInfo ing....')
-  const stakeInfo = await stake.getStakedInfo('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded');
-  console.log('sns getStakedInfo success', stakeInfo)
-
-  const followNFT = await FollowNFT.attach(stakeInfo.friendNFTAddress);
-  console.log('followNFT attach success', followNFT.address)
-
-  // console.log('followNFT:setApprovalForAll ing');
-  // const setApprovalForAllTx = await followNFT.setApprovalForAll(trading.address, true);
-  // setApprovalForAllTx.wait();
-  // console.log('followNFT: setApprovalForAll success')
-
-  // console.log('followNFT:setApprovalForAll ing');
-  // const setApprovalForAllTx = await followNFT.setApprovalForAll("0x96b5Ae79949b20f45Dd01566c4d896169CFCC521", true);
-  // setApprovalForAllTx.wait();
-  // console.log('followNFT: setApprovalForAll success')
-
-  // console.log('followNFT:safeTransferFrom ing');
-  // const safeTransferFromTx = await followNFT.transferFrom("0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded", "0x7A1A9567Dd868D24D49F00201107463b0114fe55", 9);
-  // safeTransferFromTx.wait();
-  // console.log('followNFT: safeTransferFromTx success')
-
-  console.log('owner:', owner);
-  const balance = await followNFT.balanceOf(owner);
-  const tokenId = await followNFT.tokensOfOwner(owner)
-  console.log('owner:tokenId:', tokenId);
-
-  // console.log('trading setOrder ing....')
-  // const setOrderTx = await trading.setOrder(followNFT.address, testAddress.keyAddress, ethers.BigNumber.from("10000000000"), tokenId[0]);
-  // setOrderTx.wait();
-  // console.log('trading setOrder success')
-
-  console.log('trading getOrder ing....')
-  const order = await trading.getOrder('0xc8bd9dE4336cB94bc08e12578380437cFEdE6d79', '0xa90BB9A665aaBdce24B1990bbF61cB696516d34A');
-  console.log('trading getOrder success', order)
-
-}
-
-async function cancelOrder(trading, owner) {
-  console.log('trading cancelOrder ing....')
-  const cancelOrderTx = await trading.cancelOrder(testAddress.followAddress);
-  cancelOrderTx.wait();
-  console.log('trading cancelOrder success')
-
-}
-
-async function buy(trading, linkKey, owner) {
-  console.log('trading getOrder ing....')
-  const order = await trading.getOrder('0xf27Ac7cff0C02C11794B9115248097BD040E4C9c', testAddress.followAddress)
-  console.log('trading getOrder success', order)
-
-  console.log('linkKey approve ing....')
-  const approveTx = await linkKey.approve(trading.address, testAddress.followAddress)
-  approveTx.wait()
-  console.log('linkKey approve success')
-
-  console.log('trading buy ing...')
-  const buyTx = await trading.buy('0xf27Ac7cff0C02C11794B9115248097BD040E4C9c', testAddress.followAddress, 9);
-  buyTx.wait();
-  console.log('trading buy success')
-}
-
-async function transferNFT(followNFT, groupNFT, owner) {
-  // console.log('followNFT transfer ing....')
-  // const transferFN = await followNFT.transferFrom('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', '0x5435e8bb74d7ba8f4a76287dc0e75e203d87647e', 2)
-  // transferFN.wait()
-  // console.log('followNFT transfer success')
-
-  console.log('groupNFT transfer ing....')
-  const transferGN = await groupNFT.transferFrom('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', '0x5435e8bb74d7ba8f4a76287dc0e75e203d87647e', 2)
-  transferGN.wait()
-  console.log('groupNFT transfer success')
-
-}
-
-async function testCreate() {
-  const Test = await ethers.getContractFactory('Test')
-  console.log('Test deploy ing....')
-  const test = await Test.attach("0x2Fb2Bd06d165C94CDc5C5A818AF9CBA44086B7F9")
-  console.log('Test deploy success', test.address)
-  const createFoundationTx = await test.createFoundation()
-  createFoundationTx.wait()
-  console.log('Test createFoundation success')
-}
-
-async function upgradeSNSResolver(SNSResolver) {
-  console.log('snsResolver upgrade ing....')
-  const snsResolver = await upgrades.upgradeProxy(
-    testAddress.snsResolverAddress,
-    // "0x279339127a5B4b7580044E5De0DBEA201e0BF723",
-    SNSResolver,
-  )
-  await snsResolver
-  console.log('snsResolver upgrade success')
-  return snsResolver
 }
 
 main().catch((error) => {

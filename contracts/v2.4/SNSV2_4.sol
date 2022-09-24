@@ -334,7 +334,12 @@ contract SNSV2_4 is NFTV2 , ISns{
             tokenIdOfName:_tokenIdOfName[name_],
             resolverOwner:_resolverInfo[name_].owner,
             resolverAddress:_resolverInfo[name_].resolverAddress,
-            nameOfTokenId:_nameOfTokenId[tokenId_]
+            nameOfTokenId:_nameOfTokenId[tokenId_],
+            priceOfShort:PriceOfShort({
+                maticPrice:0,
+                keyAddress:address(0),
+                keyPrice:0
+            })
         });
     }
 

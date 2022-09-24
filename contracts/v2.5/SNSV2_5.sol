@@ -202,39 +202,23 @@ contract SNSV2_5 is NFTV2 , ISns{
     function shortNameMint(string memory name_, uint256 payWay_) external virtual payable {
         name_ = name_.trim(" ");
         require(name_.lenOfChars() >= SHORT_LENGTH_MIN && name_.lenOfChars() >= SHORT_LENGTH_MAX, "015---name length error");
-        bool isOutOfferEndingTime = block.timestamp > _offerEndingTime;
-        uint256 feeAmount;
+
+        Response memory response = getInfo(_msgSender(),"",0);
+        PriceOfShort memory priceOfShort = response.priceOfShort;
+
         bool success;
-        bool isOffer;
-        if(!isOutOfferEndingTime){
-            if(_freeShortMint[_msgSender()]){
-                success = true;
-            }else{
-                if(_shortNameAllowedlist[_msgSender()]){
-                    isOffer = true;
-                }
-            }
-        }
-        if(!success && isOffer){
+        uint256 feeAmount;
+
+        if(priceOfShort.maticPrice == 0 && priceOfShort.keyPrice == 0){
+            success = true;
+        }else{
             if(payWay_ == 1){
-                feeAmount = _priceOfShorts[3].maticPrice.mul(_percentage[1]).div(1000);
+                feeAmount = priceOfShort.maticPrice;
                 require(msg.value >= feeAmount,"feeAmount not enough");
                 (success, ) = payable(_feeTo).call{value: msg.value}("");
             }else if(payWay_ == 2){
-                feeAmount = _priceOfShorts[3].keyPrice.mul(_percentage[1]).div(1000);
-                success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),_feeTo,feeAmount);
-            }else{
-                require(false,"error payWay");
-            }
-        }
-        if(!success && !isOffer){
-            if(payWay_ == 1){
-                feeAmount = _priceOfShorts[3].maticPrice;
-                require(msg.value >= feeAmount,"feeAmount not enough");
-                (success, ) = payable(_feeTo).call{value: msg.value}("");
-            }else if(payWay_ == 2){
-                feeAmount = _priceOfShorts[3].keyPrice;
-                success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),_feeTo,feeAmount);
+                feeAmount = priceOfShort.keyPrice;
+                success = IERC20(priceOfShort.keyAddress).transferFrom(_msgSender(),_feeTo,feeAmount);
             }else{
                 require(false,"error payWay");
             }
@@ -363,9 +347,27 @@ contract SNSV2_5 is NFTV2 , ISns{
         return _shortNameAllowedlist[addr_];
     }
 
-    
-
     function getInfo(address addr_,string memory name_,uint256 tokenId_) public view returns (Response memory addressResp){
+        PriceOfShort memory priceOfShort = _priceOfShorts[3];
+        bool isOutOfferEndingTime = block.timestamp > _offerEndingTime;
+        if(!isOutOfferEndingTime){
+            if(_freeShortMint[addr_]){
+                priceOfShort = PriceOfShort({
+                    maticPrice:0,
+                    keyAddress:_priceOfShorts[3].keyAddress,
+                    keyPrice:0
+                });
+            }else{
+                if(_shortNameAllowedlist[addr_]){
+                    priceOfShort = PriceOfShort({
+                        maticPrice:_priceOfShorts[3].maticPrice.mul(_percentage[3]).div(1000),
+                        keyAddress:_priceOfShorts[3].keyAddress,
+                        keyPrice:_priceOfShorts[3].keyPrice.mul(_percentage[3]).div(1000)
+                    });
+                }
+            }
+        }
+
         addressResp = Response({
             shortNameAllowed:_shortNameAllowedlist[addr_],
             addressRegistered:_registered[addr_],
@@ -374,7 +376,8 @@ contract SNSV2_5 is NFTV2 , ISns{
             tokenIdOfName:_tokenIdOfName[name_],
             resolverOwner:_resolverInfo[name_].owner,
             resolverAddress:_resolverInfo[name_].resolverAddress,
-            nameOfTokenId:_nameOfTokenId[tokenId_]
+            nameOfTokenId:_nameOfTokenId[tokenId_],
+            priceOfShort:priceOfShort
         });
     }
 
@@ -589,42 +592,45 @@ contract SNSV2_5 is NFTV2 , ISns{
     *loser foundation address: 0x1EC0E4DC543566f26B73800700080B4b2f3fD208
      */
 
-
     //Three-digit registration fee
-    struct PriceOfShort{
-        uint256 maticPrice;
-        address keyAddress;
-        uint256 keyPrice;
-    }
+    mapping(uint256 => PriceOfShort) private _priceOfShorts;
 
-    mapping(uint256 => PriceOfShort) public _priceOfShorts;
+    uint256 private _offerEndingTime;
 
-    uint256 public _offerEndingTime;
-
-    mapping(address => bool) public _freeShortMint;
+    mapping(address => bool) private _freeShortMint;
 
     //1 : 50% 2:0
-    mapping(uint256 => uint256) public _percentage;
+    mapping(uint256 => uint256) private _percentage;
 
     /**
      * @dev setPriceOfShorts
      * v2.5 
      */
-    function setPriceOfShorts(uint256 shortLength_,uint256 maticPrice_,address keyAddress_,uint256 keyPrice_) external virtual onlyOwner {
-        _priceOfShorts[shortLength_].maticPrice = maticPrice_;
-        _priceOfShorts[shortLength_].keyAddress = keyAddress_;
-        _priceOfShorts[shortLength_].keyPrice = keyPrice_;
-    }
+    function setShortMintParams(
+        uint256 shortLength_,
+        uint256 maticPrice_,
+        address keyAddress_,
+        uint256 keyPrice_,
+        uint256 offerEndingTime_,
+        address[] memory addrs_,
+        bool isFreeShortMint_) 
+    external virtual onlyOwner{
 
-    function setOfferEndingTime(uint256 offerEndingTime_) external virtual onlyOwner {
-        _offerEndingTime = offerEndingTime_;
-    }
+        if(maticPrice_ != 0 && keyPrice_ != 0){
+            _priceOfShorts[shortLength_].maticPrice = maticPrice_;
+            _priceOfShorts[shortLength_].keyAddress = keyAddress_;
+            _priceOfShorts[shortLength_].keyPrice = keyPrice_;
+        }
 
-    function setFreeShortMint(address[] memory addrs_,bool isFreeShortMint_) external virtual onlyOwner {
-        for (uint256 i = 0; i < addrs_.length; i ++) {
-            _freeShortMint[addrs_[i]] = isFreeShortMint_;
+        if(offerEndingTime_ != 0){
+            _offerEndingTime = offerEndingTime_;
+        }
+
+        if(addrs_.length != 0){
+            for (uint256 i = 0; i < addrs_.length; i ++) {
+                _freeShortMint[addrs_[i]] = isFreeShortMint_;
+            }
         }
     }
-
 
 }

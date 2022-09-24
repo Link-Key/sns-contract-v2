@@ -11,6 +11,13 @@ interface ISns {
         address resolverOwner;
         address resolverAddress;
         string nameOfTokenId;
+        PriceOfShort priceOfShort;
+    }
+
+    struct PriceOfShort{
+        uint256 maticPrice;
+        address keyAddress;
+        uint256 keyPrice;
     }
 
     function setStake(uint256 tokenId_,bool staked) external;
