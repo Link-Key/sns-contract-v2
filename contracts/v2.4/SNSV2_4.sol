@@ -222,8 +222,8 @@ contract SNSV2_4 is NFTV2 , ISns{
      */
     function _registerName(string memory name_, address to_) internal virtual returns (bool){
         require(_defaultResolverAddress != address(0), "006---please set defaultResolverAddress");
-        // require(!_nameRegistered[name_], "003---name has been registered");
-        // require(!_registered[to_],"008---the address has _registered");
+        require(!_nameRegistered[name_], "003---name has been registered");
+        require(!_registered[to_],"008---the address has _registered");
         _nameOfOwner[to_] = name_;
         _resolverInfo[name_].resolverAddress = _defaultResolverAddress;
         _resolverInfo[name_].owner = to_;

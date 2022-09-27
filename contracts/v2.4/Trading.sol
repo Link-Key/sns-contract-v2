@@ -40,8 +40,8 @@ contract Trading is OwnableUpgradeable{
     function initialize() public initializer {
         __Ownable_init();
         _feeRate = 25;
-        _feeTo = 0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded;//test
-        // _feeTo = 0x5455E2960e243671966d92deEA4C7eDac49305aF;//main
+        // _feeTo = 0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded;//test
+        _feeTo = 0x5455E2960e243671966d92deEA4C7eDac49305aF;//main
     }
 
     function setFee(uint256 feeRate_,address feeTo_) public onlyOwner{

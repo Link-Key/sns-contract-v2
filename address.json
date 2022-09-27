@@ -9,7 +9,7 @@
         "followAddress":"0x36144dA36EBbEB1b8Cf24795Ca641E315241fC7E",
         "groupAddress":"0xE080b9152A9BF4d57E87dC8F111Da069215013b9",
         "newSnsAddress":"0x362945C3ffa822854240788EcdB509f104E56588",
-        "newSnsResolverAddress":"0xb5f4eA9970Ad78B7dbCB0c5FF7835A93e36c40B6",
+        "newSnsResolverAddress":"0x2593dE25e895250b33a8cC49abdFa3DE99926e67",
         "newStakeAddress":"0xaA4F164fE5992CF7940C502aa2fDf53aFE09cD54",
         "newTradingAddress":"0xB6Da7994180a6F074B0E1221ad8b4f89179088CA"
     },
@@ -18,6 +18,11 @@
         "keyAddress":"0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f",
         "snsAddress":"0x19AD2b1F012349645C3173EA63F98948A2b43d27",
         "inviteAddress":"0x1Be596e965e2566d2f211fea6b09898d0956c04E",
-        "snsResolverAddress":"0x08f4372e1CdBDcD958cF5ad6ECcb5637E64A9Ac7"
+        "snsResolverAddress":"0x08f4372e1CdBDcD958cF5ad6ECcb5637E64A9Ac7",
+        "stakeAddress":"0x4417C0ABF812a943ca2491E0330970d42fa43E99",
+        "tradingAddress":"0x5E1E453C50AECCd16Fb2DaA8959FBBa8B35e5B63",
+        "followAddress":"0x49dfEDc506ff985F0e58b8aB425C92841FAcC21c",
+        "groupAddress":"0xea0480753FBD5852ef81C66F7312e9E347c66C17",
+        "feeToAddress":"0x5455e2960e243671966d92deea4c7edac49305af"
     }
 }

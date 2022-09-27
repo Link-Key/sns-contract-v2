@@ -21,12 +21,13 @@ contract FollowNFT is ERC721AQueryable, Ownable, INFT{
 
     function initialize(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) public override {
         _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;
-        _stakeAddress = 0x279339127a5B4b7580044E5De0DBEA201e0BF723;
-        _tradingAddress = 0xB1d8DCf3d31FF8A50F5023883332d03827009056;
+        _stakeAddress = 0x4417C0ABF812a943ca2491E0330970d42fa43E99;
+        _tradingAddress = 0x5E1E453C50AECCd16Fb2DaA8959FBBa8B35e5B63;
         require(ownerMintAccount<=150,"401");
         require(_msgSender() == _stakeAddress,"not you");
         super._setNameAndSymbol(nftName,nftSymbol);
         _floorPrices = floorPrices;
+        require(taxPreparation>0&&taxPreparation<=100,"taxPreparation error");
         _taxPreparation = taxPreparation;
         _transferOwnership(owner);
         _safeMint(owner,ownerMintAccount);
@@ -40,6 +41,7 @@ contract FollowNFT is ERC721AQueryable, Ownable, INFT{
     }
 
     function setTaxPreparation(uint256 taxPreparation) public onlyOwner{
+        require(taxPreparation>0&&taxPreparation<=100,"taxPreparation error");
         _taxPreparation = taxPreparation;
     }
 

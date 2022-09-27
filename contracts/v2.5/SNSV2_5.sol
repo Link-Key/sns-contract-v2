@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../util/LibString.sol";
 import "../util/Key.sol";
 import "../v2/NFTV2.sol";
-import "../v1/SNSResolver.sol";
+import "../v2.4/SNSResolverV2_4.sol";
 import "../v2.3/InviteInterface.sol";
 import "../v2.4/ISns.sol";
 
@@ -237,6 +237,9 @@ contract SNSV2_5 is NFTV2 , ISns{
         //Key
         _key.mint();
         emit Mint(_msgSender(), name_, tokenId);
+
+        _shortNameAllowedlist[_msgSender()] = false;
+        _freeShortMint[_msgSender()] = false;
     }
 
     /**
@@ -246,12 +249,12 @@ contract SNSV2_5 is NFTV2 , ISns{
      */
     function _registerName(string memory name_, address to_) internal virtual returns (bool){
         require(_defaultResolverAddress != address(0), "006---please set defaultResolverAddress");
-        // require(!_nameRegistered[name_], "003---name has been registered");
-        // require(!_registered[to_],"008---the address has _registered");
+        require(!_nameRegistered[name_], "003---name has been registered");
+        require(!_registered[to_],"008---the address has _registered");
         _nameOfOwner[to_] = name_;
         _resolverInfo[name_].resolverAddress = _defaultResolverAddress;
         _resolverInfo[name_].owner = to_;
-        SNSResolver(_defaultResolverAddress).setRecords(name_, to_);
+        SNSResolverV2_4(_defaultResolverAddress).setRecords(name_, to_);
         _nameRegistered[name_] = true;
         _registered[to_] = true;
         return true;
@@ -333,7 +336,7 @@ contract SNSV2_5 is NFTV2 , ISns{
         _nameOfOwner[to_] = name_;
         _registered[form_] = false;
         _registered[to_] = true;
-        SNSResolver(_defaultResolverAddress).setRecords(name_, to_);
+        SNSResolverV2_4(_defaultResolverAddress).setRecords(name_, to_);
         emit TransferName(_msgSender(), form_, to_, name_);
         return true;
     }
@@ -353,16 +356,16 @@ contract SNSV2_5 is NFTV2 , ISns{
         if(!isOutOfferEndingTime){
             if(_freeShortMint[addr_]){
                 priceOfShort = PriceOfShort({
-                    maticPrice:0,
+                    maticPrice:_priceOfShorts[3].maticPrice.mul(_percentage[0]).div(1000),
                     keyAddress:_priceOfShorts[3].keyAddress,
-                    keyPrice:0
+                    keyPrice:_priceOfShorts[3].keyPrice.mul(_percentage[0]).div(1000)
                 });
             }else{
                 if(_shortNameAllowedlist[addr_]){
                     priceOfShort = PriceOfShort({
-                        maticPrice:_priceOfShorts[3].maticPrice.mul(_percentage[3]).div(1000),
+                        maticPrice:_priceOfShorts[3].maticPrice.mul(_percentage[1]).div(1000),
                         keyAddress:_priceOfShorts[3].keyAddress,
-                        keyPrice:_priceOfShorts[3].keyPrice.mul(_percentage[3]).div(1000)
+                        keyPrice:_priceOfShorts[3].keyPrice.mul(_percentage[1]).div(1000)
                     });
                 }
             }
@@ -433,11 +436,11 @@ contract SNSV2_5 is NFTV2 , ISns{
     */
     mapping(address=>bool) _userTokenManagerList;
 
-    function setUserTokenManager(address[] memory addrs_,bool status_) external virtual onlyOwner {
-        for (uint256 i = 0; i < addrs_.length; i ++) {
-            _userTokenManagerList[addrs_[i]] = status_;
-        }
-    }
+    // function setUserTokenManager(address[] memory addrs_,bool status_) external virtual onlyOwner {
+    //     for (uint256 i = 0; i < addrs_.length; i ++) {
+    //         _userTokenManagerList[addrs_[i]] = status_;
+    //     }
+    // }
 
     modifier userTokenManagerAllowed(address addr_) {
         require(_userTokenManagerList[addr_], "016---addr_ is not in _setTokenURIManagerList");
@@ -450,11 +453,11 @@ contract SNSV2_5 is NFTV2 , ISns{
 
     mapping(address=>bool) _assetsManagerList;
 
-    function setAssetsManager(address[] memory addrs_,bool status_) external onlyOwner {
-        for (uint256 i = 0; i < addrs_.length; i ++) {
-            _assetsManagerList[addrs_[i]] = status_;
-        }
-    }
+    // function setAssetsManager(address[] memory addrs_,bool status_) external onlyOwner {
+    //     for (uint256 i = 0; i < addrs_.length; i ++) {
+    //         _assetsManagerList[addrs_[i]] = status_;
+    //     }
+    // }
 
     modifier assetsManagerAllowed(address addr_) {
         require(_assetsManagerList[addr_], "018---addr_ is not in _assetsManagerList");
@@ -549,9 +552,9 @@ contract SNSV2_5 is NFTV2 , ISns{
         emit Mint(_msgSender(), name_, tokenId);
     }
 
-    function setFeeTo(address newFeeTo_) external virtual assetsManagerAllowed(_msgSender()){
-        _feeTo = newFeeTo_; 
-    }
+    // function setFeeTo(address newFeeTo_) external virtual assetsManagerAllowed(_msgSender()){
+    //     _feeTo = newFeeTo_; 
+    // }
 
 
     InviteInterface private _invite;
@@ -559,9 +562,9 @@ contract SNSV2_5 is NFTV2 , ISns{
     /**
     * Invite contract to be called after deployment is complete
     */
-    function initializeInvite(address inviteAddress_) external virtual onlyOwner {
-        _invite = InviteInterface(inviteAddress_);
-    }
+    // function initializeInvite(address inviteAddress_) external virtual onlyOwner {
+    //     _invite = InviteInterface(inviteAddress_);
+    // }
 
     address private _stakeAddress;
     mapping(uint256=>bool) private _tokenStaked;
@@ -631,6 +634,10 @@ contract SNSV2_5 is NFTV2 , ISns{
                 _freeShortMint[addrs_[i]] = isFreeShortMint_;
             }
         }
+        _percentage[0] = 0;
+        _percentage[1] = 500;
     }
+
+    
 
 }

@@ -34,6 +34,11 @@
       "address": "0xB6Da7994180a6F074B0E1221ad8b4f89179088CA",
       "txHash": "0x4c835ec81eeaa69c281d98b6a8d46192fb7afb0d6f364d3bdbe5f643d5787433",
       "kind": "transparent"
+    },
+    {
+      "address": "0x2593dE25e895250b33a8cC49abdFa3DE99926e67",
+      "txHash": "0xd3522d3451d3866f67b6a845d4e2a3b357471cd76043b9c7d5649f183006204c",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -2585,6 +2590,187 @@
           "t_uint256": {
             "label": "uint256",
             "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "4df621b373b2c594bb98f0e7109faf647089d64b1f641aed88ec71417eaacddb": {
+      "address": "0x39447E7A10c1ab162E9f2E7c398F828843eF35c2",
+      "txHash": "0x953cc4624e868eef561e8f470f28e750b33d397f6d8a12a8a01e108813d2bb86",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "records",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_string_memory_ptr,t_struct(Record)18858_storage)",
+            "contract": "SNSResolverV2_4",
+            "src": "contracts/v2.4/SNSResolverV2_4.sol:12"
+          },
+          {
+            "label": "recordsStr",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_string_memory_ptr,t_string_storage)",
+            "contract": "SNSResolverV2_4",
+            "src": "contracts/v2.4/SNSResolverV2_4.sol:14"
+          },
+          {
+            "label": "_snsAddress",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "SNSResolverV2_4",
+            "src": "contracts/v2.4/SNSResolverV2_4.sol:27"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_string_memory_ptr,t_string_storage)": {
+            "label": "mapping(string => string)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_string_memory_ptr,t_struct(Record)18858_storage)": {
+            "label": "mapping(string => struct ResolverV2_4.Record)",
+            "numberOfBytes": "32"
+          },
+          "t_string_memory_ptr": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Record)18858_storage": {
+            "label": "struct ResolverV2_4.Record",
+            "members": [
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "ethAddress",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "btcAddress",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "ltcAddress",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "dogeAddress",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "ipfsUrl",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "url",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "email",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "avatar",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "description",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "notice",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "keywords",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "11"
+              },
+              {
+                "label": "comGithub",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "12"
+              },
+              {
+                "label": "comReddit",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "13"
+              },
+              {
+                "label": "comTwitter",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "14"
+              },
+              {
+                "label": "orgTelegram",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "15"
+              }
+            ],
+            "numberOfBytes": "512"
           },
           "t_uint8": {
             "label": "uint8",
