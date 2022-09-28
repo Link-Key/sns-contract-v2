@@ -493,6 +493,7 @@ const freeMintAddressList = [
   , "0xB376ccCbEE52a6B12D230B29A5667b47EE6db2ea"
 ]
 
+
 const halfFreeMintAddressList1 = [
   "0x5AB921083880A04AB5FaF6426A70982F957cf7Ff"
   , "0xD3f8cf80C19BD2c42F8EB6ED5faf8d2c66157DAE"
@@ -534,6 +535,17 @@ const halfFreeMintAddressList1 = [
   , "0x142109fBBD0B9416d5122E711b1A44E1cA5fE442"
 ]
 
+const freeMintAddressList1 = [
+  "0x3C02D35cB4c5524e9195D018cbDCe7cA9de0b0bc"
+]
+
+const freeMintAddressList2 = [
+  "0xe53a5d9E48CBF29D77Feada984ACB7095216e53E",
+  "0x1403DE63FD872aE20b31Bf3325C00867e7642d54",
+  "0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F"
+]
+
+
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
   console.log("the account:", deployer.address);
@@ -547,9 +559,9 @@ async function main() {
   const linkKey = await LinkKey.attach(mainAddress.keyAddress)
   console.log('LinkKey deployed to:', linkKey.address)
 
-  const sns = await upgradeSns(SNSV2_5);
+  // const sns = await upgradeSns(SNSV2_5);
 
-  // const { sns } = await attachOld(SNSV2_5)
+  const { sns } = await attachOld(SNSV2_5)
 
   //设置新增参数
   // await setting(sns);
@@ -562,6 +574,12 @@ async function main() {
 
   //管理员铸造
   // await managerMint(sns);
+
+  await getMintFee(sns);
+
+  // await shortMintTest(sns);
+
+  await getMintFee(sns);
 
 
 }
@@ -594,21 +612,22 @@ async function setting(sns) {
 }
 
 async function addFreeAddress(sns) {
-  console.log('testFreeMintAddressList', freeMintAddressList.length)
+  const list = freeMintAddressList2;
+  console.log('testFreeMintAddressList', list.length)
 
   let start = 0;
   let step = 15
-  let times = freeMintAddressList.length / step
+  let times = list.length / step
   console.log('times', times)
 
   const tempList = [];
 
-  for (let index = 17; index < times; index++) {
+  for (let index = 0; index < times; index++) {
     console.log('index', index)
     start = step * index;
-    end = start + step > freeMintAddressList.length ? freeMintAddressList.length : start + step
+    end = start + step > list.length ? list.length : start + step
     for (let index1 = start; index1 <= end; index1++) {
-      tempList[end - index1] = freeMintAddressList[index1];
+      tempList[end - index1] = list[index1];
     }
     tempList[0] = tempList[1]
 
@@ -709,6 +728,20 @@ async function managerMint(sns) {
   console.log('sns managerMint success')
 }
 
+async function getMintFee(sns) {
+  console.log('sns getInfo ing....')
+  const info = await sns.getInfo('0x1403DE63FD872aE20b31Bf3325C00867e7642d54', '', 0)
+  console.log('info', info)
+
+}
+
+async function shortMintTest(sns) {
+  console.log('sns shortNameMint ing....')
+  const shortNameMintTx = await sns.shortNameMint('zxc', 2, { value: 0 })
+  shortNameMintTx.wait()
+  console.log('sns shortNameMint success')
+
+}
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {

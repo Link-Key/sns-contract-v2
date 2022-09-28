@@ -97,6 +97,12 @@ module.exports = {
       gas: 2100000,
       gasPrice: 50000000000,
     },
+    polygon_main_account11: {
+      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+      accounts: { mnemonic: mnemonic_matemask_account11 },
+      gas: 2100000,
+      gasPrice: 50000000000,
+    },
     polygon_test_account1: {
       url: process.env.POLYGON_URL_A + alchemyApiKey2 || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
