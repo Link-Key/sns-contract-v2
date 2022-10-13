@@ -34,7 +34,7 @@ async function main() {
 
   await snsSetting(sns, snsResolver, invite, stake, trading, deployer.address);
 
-
+  // await deployNewNFT(FollowNFT, GroupNFT, deployer.address)
 
   // await snsSetCoin(sns, deployer.address);
 
@@ -98,11 +98,30 @@ async function deploy(SNSV2_4, SNSResolver, Stake, Trading, owner) {
   return { sns, snsResolver, stake, trading }
 }
 
+async function deployNewNFT(FollowNFT, GroupNFT, owner) {
+  console.log('FollowNFT deploy ing....')
+  const followNFT = await FollowNFT.deploy()
+  console.log('FollowNFT deploy success', followNFT.address)
+
+  // const groupNFT = null
+  console.log('GroupNFT deploy ing....')
+  const groupNFT = await GroupNFT.deploy()
+  console.log('GroupNFT deploy success', groupNFT.address)
+
+  return { followNFT, groupNFT }
+}
+
 async function snsSetting(sns, snsResolver, invite, stake, trading, owner) {
-  console.log('sns setDefaultResolverAddress ing....')
-  const setDefaultResolverAddressTx = await sns.setDefaultResolverAddress(snsResolver.address);
-  setDefaultResolverAddressTx.wait();
-  console.log('sns setDefaultResolverAddress success')
+
+  // console.log('sns setStakeAddress ing....')
+  // const setStakeAddressTx = await sns.setStakeAddress(stake.address);
+  // setStakeAddressTx.wait();
+  // console.log('sns setStakeAddress success')
+
+  // console.log('sns setDefaultResolverAddress ing....')
+  // const setDefaultResolverAddressTx = await sns.setDefaultResolverAddress(snsResolver.address);
+  // setDefaultResolverAddressTx.wait();
+  // console.log('sns setDefaultResolverAddress success')
 
   // console.log('sns initializeInvite ing....')
   // const initializeInviteTx = await sns.initializeInvite(invite.address);
@@ -144,20 +163,20 @@ async function snsSetting(sns, snsResolver, invite, stake, trading, owner) {
   // setStakeAddressTx.wait();
   // console.log('sns setStakeAddress success')
 
-  // console.log('stake setAddress ing....')
-  // const setAddressTx = await stake.setAddress(
-  //   sns.address,
-  //   owner,
-  //   ethers.BigNumber.from("1000000000000000000"),
-  //   ethers.BigNumber.from("10000000000000000000"),
-  //   testAddress.keyAddress,
-  //   "0x36144dA36EBbEB1b8Cf24795Ca641E315241fC7E",
-  //   "0xE080b9152A9BF4d57E87dC8F111Da069215013b9",
-  //   ethers.BigNumber.from("1000000000000000000"),
-  //   ethers.BigNumber.from("10000000000000000000")
-  // );
-  // setAddressTx.wait();
-  // console.log('stake setAddress success')
+  console.log('stake setAddress ing....')
+  const setAddressTx = await stake.setAddress(
+    sns.address,
+    owner,
+    ethers.BigNumber.from("1000000000000000000"),
+    ethers.BigNumber.from("10000000000000000000"),
+    testAddress.keyAddress,
+    "0x3A66248DCdF7bA905a7800B7204c9EC6CE7F9514",
+    "0x97777B7C8c7670FEcEa3D02fE0BcDEaE82983b03",
+    ethers.BigNumber.from("1000000000000000000"),
+    ethers.BigNumber.from("10000000000000000000")
+  );
+  setAddressTx.wait();
+  console.log('stake setAddress success')
 
 }
 

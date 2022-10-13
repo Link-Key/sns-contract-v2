@@ -75,22 +75,22 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    //升级地址 invite合约管理地址
+    //Upgrade address invite contract management address
     polygon_main_account12: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account12 },
       gas: 2100000,
       gasPrice: 500000000000,
     },
-    //管理地址
+    //Manage Address
     polygon_main_account1: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
       gasPrice: 50000000000,
     },
-    //资产管理地址：zack 0xB879C52F1B7C2E366410b2718924a306d098B9d9
-    //用户代币管理地址：
+    //Asset management address:zack 0xB879C52F1B7C2E366410b2718924a306d098B9d9
+    //User token management address：
     polygon_main_account9: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account9 },

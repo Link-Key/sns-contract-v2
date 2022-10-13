@@ -20,9 +20,12 @@ contract GroupNFT is ERC721AQueryable, Ownable, INFT{
     }
 
     function initialize(string memory nftName, string memory nftSymbol,address owner,uint256 floorPrices,uint256 ownerMintAccount,uint256 taxPreparation) public override {
-        _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;
-        _stakeAddress = 0x4417C0ABF812a943ca2491E0330970d42fa43E99;
-        _tradingAddress = 0x5E1E453C50AECCd16Fb2DaA8959FBBa8B35e5B63;
+        // _keyAddress = 0x5CA9A8405499a1Ee8fbB1849f197b2b7e518985f;
+        // _stakeAddress = 0x4417C0ABF812a943ca2491E0330970d42fa43E99;
+        // _tradingAddress = 0x5E1E453C50AECCd16Fb2DaA8959FBBa8B35e5B63;
+        _keyAddress = 0xFA12F5ff3c2A137a02F1678E50c54276624b50FB;
+        _stakeAddress = 0xaA4F164fE5992CF7940C502aa2fDf53aFE09cD54;
+        _tradingAddress = 0xB6Da7994180a6F074B0E1221ad8b4f89179088CA;
         require(ownerMintAccount<=1500,"401");
         require(_msgSender() == _stakeAddress,"not you");
         super._setNameAndSymbol(nftName,nftSymbol);

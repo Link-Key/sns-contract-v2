@@ -540,10 +540,12 @@ const freeMintAddressList1 = [
 ]
 
 const freeMintAddressList2 = [
-  "0xe53a5d9E48CBF29D77Feada984ACB7095216e53E",
-  "0x1403DE63FD872aE20b31Bf3325C00867e7642d54",
-  "0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F"
+  // "0xe53a5d9E48CBF29D77Feada984ACB7095216e53E",
+  // "0x1403DE63FD872aE20b31Bf3325C00867e7642d54",
+  // "0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F",
+  "0x185BA2eD90fA734c34abd6F2283f22C785afba75"
 ]
+
 
 
 async function main() {
@@ -730,7 +732,7 @@ async function managerMint(sns) {
 
 async function getMintFee(sns) {
   console.log('sns getInfo ing....')
-  const info = await sns.getInfo('0x1403DE63FD872aE20b31Bf3325C00867e7642d54', '', 0)
+  const info = await sns.getInfo('0x185BA2eD90fA734c34abd6F2283f22C785afba75', 'bowen.key', 0)
   console.log('info', info)
 
 }
