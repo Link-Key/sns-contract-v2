@@ -6,7 +6,6 @@ import "./ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 
-
 contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
 
      function __NFT_init(string memory name_, string memory symbol_) internal onlyInitializing {
@@ -90,7 +89,7 @@ contract NFT is ERC721URIStorageUpgradeable, OwnableUpgradeable {
      * @param tokenIds_ NFT tokenId
      * @param tokenURIs_ NFT tokenURI
      */
-    function setTokenURI(uint256[] memory tokenIds_, string[] memory tokenURIs_) external onlyOwner {
+    function _setTokensURI(uint256[] memory tokenIds_, string[] memory tokenURIs_) internal {
         for (uint256 i = 0; i < tokenIds_.length; i++) {
             require(_setSigleTokenURI(tokenIds_[i], tokenURIs_[i]));
         }
