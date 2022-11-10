@@ -2,12 +2,34 @@
 
 pragma solidity ^0.8.0;
 
-import "./ResolverV2_4.sol";
+import "./Resolver.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "../util/LibString.sol";
+import "./util/LibString.sol";
 
-contract SNSResolverV2_4 is ResolverV2_4, Initializable{
+contract SNSResolver is Resolver, Initializable{
     using LibString for string;
+
+    struct Record {
+        address owner;
+        //address
+        string ethAddress;
+        string btcAddress;
+        string ltcAddress;
+        string dogeAddress;
+        //ipfs
+        string ipfsUrl;
+        //records
+        string url;
+        string email;
+        string avatar;
+        string description;
+        string notice;
+        string keywords;
+        string comGithub;
+        string comReddit;
+        string comTwitter;
+        string orgTelegram;
+    }
 
     mapping(string => Record) private records;
 
@@ -124,7 +146,7 @@ contract SNSResolverV2_4 is ResolverV2_4, Initializable{
             records[name_].orgTelegram = properties[14].equalNocase("")?records[name_].orgTelegram:properties[14];
         }
 
-        emit ContentChanged(name_, "all", recordsStr_,records[name_]);
+        emit ContentChanged(name_, "all", recordsStr_);
     }
 
     function getAllProperties(string memory name_) external view returns (string memory){
