@@ -24,6 +24,7 @@ const {
   alchemyApiKey1,
   alchemyApiKey2,
   main_alchemyApiKey,
+  main_alchemyApiKey1,
   mnemonic_matemask_account1,
   mnemonic_matemask_account9,
   mnemonic_matemask_account10,
@@ -84,7 +85,7 @@ module.exports = {
     },
     //Manage Address
     polygon_main_account1: {
-      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey1 || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
       gasPrice: 50000000000,
@@ -92,13 +93,13 @@ module.exports = {
     //Asset management address:zack 0xB879C52F1B7C2E366410b2718924a306d098B9d9
     //User token management address：
     polygon_main_account9: {
-      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey1 || '',
       accounts: { mnemonic: mnemonic_matemask_account9 },
       gas: 2100000,
-      gasPrice: 50000000000,
+      gasPrice: 500000000000,
     },
     polygon_main_account11: {
-      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
+      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey1 || '',
       accounts: { mnemonic: mnemonic_matemask_account11 },
       gas: 2100000,
       gasPrice: 50000000000,
