@@ -10,7 +10,7 @@ import "./NFT.sol";
 import "./LinkKey.sol";
 import "./SNSResolver.sol";
 
-contract SNSV is NFT {
+contract SNS is NFT {
     using SafeMathUpgradeable for uint256;
     using LibString for string;
 
@@ -170,7 +170,7 @@ contract SNSV is NFT {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-        (uint256 maticPrice,,) = getPrice();
+        (uint256 maticPrice,,,) = getPrice();
         require(msg.value == maticPrice, "005---msg.value error");
         
         //Management address to collect money
@@ -421,7 +421,7 @@ contract SNSV is NFT {
      * v2.1 add 100 price 2%
      * @dev getPrice
      */
-    function getPrice() public view  returns(uint256 maticPrice,uint256 keyPrice,uint256 lowbPrice) {
+    function getPrice() public view  returns(uint256 maticPrice,uint256 keyPrice,uint256 lowbPrice,uint256 usdcPrice) {
         uint256 tokenMinted = super.getTokenMinted();
 
         if(tokenMinted < 10000){
@@ -442,12 +442,12 @@ contract SNSV is NFT {
             lowbPrice = 400000 ether;
         }
 
-        //2022-05-16 23:30:00
-        // if(block.timestamp>1652715000){
-        //     lowbPrice = 4 ether;
-        // }
-        
-        return (maticPrice,keyPrice,lowbPrice);
+        usdcPrice = _coins[3]._coinsPrice;
+        if(tokenMinted >= 20300){
+            usdcPrice += (tokenMinted.sub(20300).div(100)) * 25* 10**4;
+        }
+
+        return (maticPrice,keyPrice,lowbPrice,usdcPrice);
     }
 
     /**
@@ -508,22 +508,6 @@ contract SNSV is NFT {
         _coins[newCoinsType_]._coinsDestroyPercentage = coinsDestroyPercentage_;
     }
 
-    // function getCoinsAddress(uint256 coinsType_) view external returns (address){
-    //     return _coins[coinsType_]._coinAddress;
-    // }
-
-    // function getCoinsPrice(uint256 coinsType_) view external returns (uint256){
-    //     return _coins[coinsType_]._coinsPrice;
-    // }
-
-    // function getCoinsDestroy(uint256 coinsType_) view external returns (bool){
-    //     return _coins[coinsType_]._coinsDestroy;
-    // }
-
-    // function getCoinsDestroyPercentage(uint256 coinsType_) view external returns (uint256){
-    //     return _coins[coinsType_]._coinsDestroyPercentage;
-    // }
-
     function getCoinsInfo(uint256 coinsType_) view external returns (address,uint256,bool,uint256){
         return (_coins[coinsType_]._coinAddress,_coins[coinsType_]._coinsPrice,_coins[coinsType_]._coinsDestroy,_coins[coinsType_]._coinsDestroyPercentage);
     }
@@ -539,11 +523,11 @@ contract SNSV is NFT {
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
        
         // require(msg.value == getPrice(), "005---msg.value error");
-        (,uint256 coinsPrices,uint256 lowbPrices) = getPrice();
+        (,uint256 coinsPrices,uint256 lowbPrices,uint256 usdcPrices) = getPrice();
 
         bool success;
+        //lowb
         if(coinsType_ == 2){
-           //Management address to collect money
             require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= lowbPrices,"019---allowance error!!!");
             uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
             if(coinsDestroyPercentage != 0){
@@ -551,7 +535,10 @@ contract SNSV is NFT {
                 success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(0x1EC0E4DC543566f26B73800700080B4b2f3fD208),lowbPrices - lowbPrices * coinsDestroyPercentage / 100);
             }
         }else{
-            //Management address to collect money
+            //usdc
+            if(coinsType_ == 3){
+                coinsPrices = usdcPrices;
+            }
             require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= coinsPrices,"019---allowance error!!!");
             
             if(_coins[coinsType_]._coinsDestroy){
