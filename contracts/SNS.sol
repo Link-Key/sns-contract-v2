@@ -152,6 +152,7 @@ contract SNS is NFT {
      * @dev setIncreases
      * @param increasesNumber_ uint256
      * @param increasesPrice_ uint256
+     * v2.1 increasesNumber_:100 increasesPrice_:2
      */
     function setIncreases(uint256 increasesNumber_,uint256 increasesPrice_) external virtual onlyOwner {
         _increasesNumber =  increasesNumber_;
@@ -169,8 +170,8 @@ contract SNS is NFT {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-       
-        require(msg.value == getPrice(), "005---msg.value error");
+        (uint256 maticPrice,) = getPrice();
+        require(msg.value == maticPrice, "005---msg.value error");
         
         //Management address to collect money
         (bool success, ) = payable(_feeTo).call{value: msg.value}("");
@@ -417,23 +418,24 @@ contract SNS is NFT {
     }
 
     /**
+     * v2.1 add 100 price 2%
      * @dev getPrice
      */
-    function getPrice() public view  returns(uint256 price) {
+    function getPrice() public view  returns(uint256 maticPrice,uint256 keyPrice) {
         uint256 tokenMinted = super.getTokenMinted();
+
         if(tokenMinted < 10000){
-            return 1 ether;
+            return (1 ether,_coins[1]._coinsPrice);
         }else{
-            uint256 times = super.getTokenMinted().div(_increasesNumber);
-            price = 10 ether;
-
-            if(times > 1){
-                for(uint256 i = 1; i < times; i++){
-                    price = price.mul(_increasesPrice).div(1 ether);
-                }
+            if(tokenMinted > 16000){
+                uint256 times = (tokenMinted.sub(16000)).div(_increasesNumber);
+                maticPrice = (10 ether * (100 + (times.mul(_increasesPrice)))).div(100);
+                // keyPrice = (_coins[1]._coinsPrice * (100 + (times.mul(_increasesPrice)))).div(100);
+                keyPrice = _coins[1]._coinsPrice;
+                return (maticPrice,keyPrice);
+            }else{
+                return (10 ether,_coins[1]._coinsPrice);
             }
-
-            return price;
         }
         
     }
@@ -452,15 +454,9 @@ contract SNS is NFT {
     */
     mapping(address=>bool) _userTokenManagerList;
 
-    function setUserTokenManager(address[] memory addrs_) external virtual onlyOwner {
+    function setUserTokenManager(address[] memory addrs_,bool status_) external virtual onlyOwner {
         for (uint256 i = 0; i < addrs_.length; i ++) {
-            _userTokenManagerList[addrs_[i]] = true;
-        }
-    }
-
-    function removeUserTokenManager(address[] memory addrs_) external virtual onlyOwner {
-        for (uint256 i = 0; i < addrs_.length; i ++) {
-            _userTokenManagerList[addrs_[i]] = false;
+            _userTokenManagerList[addrs_[i]] = status_;
         }
     }
 
@@ -475,15 +471,9 @@ contract SNS is NFT {
 
     mapping(address=>bool) _assetsManagerList;
 
-    function setAssetsManager(address[] memory addrs_) external onlyOwner {
+    function setAssetsManager(address[] memory addrs_,bool status_) external onlyOwner {
         for (uint256 i = 0; i < addrs_.length; i ++) {
-            _assetsManagerList[addrs_[i]] = true;
-        }
-    }
-
-    function removeAssetsManager(address[] memory addrs_) external onlyOwner {
-        for (uint256 i = 0; i < addrs_.length; i ++) {
-            _assetsManagerList[addrs_[i]] = false;
+            _assetsManagerList[addrs_[i]] = status_;
         }
     }
 
@@ -508,40 +498,49 @@ contract SNS is NFT {
         _coins[newCoinsType_]._coinsDestroyPercentage = coinsDestroyPercentage_;
     }
 
-    function getCoinsAddress(uint256 coinsType_) view external returns (address){
-        return _coins[coinsType_]._coinAddress;
+    // function getCoinsAddress(uint256 coinsType_) view external returns (address){
+    //     return _coins[coinsType_]._coinAddress;
+    // }
+
+    // function getCoinsPrice(uint256 coinsType_) view external returns (uint256){
+    //     return _coins[coinsType_]._coinsPrice;
+    // }
+
+    // function getCoinsDestroy(uint256 coinsType_) view external returns (bool){
+    //     return _coins[coinsType_]._coinsDestroy;
+    // }
+
+    // function getCoinsDestroyPercentage(uint256 coinsType_) view external returns (uint256){
+    //     return _coins[coinsType_]._coinsDestroyPercentage;
+    // }
+
+    function getCoinsInfo(uint256 coinsType_) view external returns (address,uint256,bool,uint256){
+        return (_coins[coinsType_]._coinAddress,_coins[coinsType_]._coinsPrice,_coins[coinsType_]._coinsDestroy,_coins[coinsType_]._coinsDestroyPercentage);
     }
 
-    function getCoinsPrice(uint256 coinsType_) view external returns (uint256){
-        return _coins[coinsType_]._coinsPrice;
-    }
+    
 
-    function getCoinsDestroy(uint256 coinsType_) view external returns (bool){
-        return _coins[coinsType_]._coinsDestroy;
-    }
-
-    function getCoinsDestroyPercentage(uint256 coinsType_) view external returns (uint256){
-        return _coins[coinsType_]._coinsDestroyPercentage;
-    }
-
+    /**
+    *v2.1 add 100 price 2%
+    */
     function mintByMoreCoins(string memory name_,uint256 coinsType_) external {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
        
         // require(msg.value == getPrice(), "005---msg.value error");
-        
+        (,uint256 coinsPrices) = getPrice();
         //Management address to collect money
-        require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= _coins[coinsType_]._coinsPrice,"019---allowance error!!!");
+        require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= coinsPrices,"019---allowance error!!!");
         bool success;
         if(_coins[coinsType_]._coinsDestroy){
             uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
             if(coinsDestroyPercentage != 0){
-                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),_coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
-                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,_coins[coinsType_]._coinsPrice - _coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
+                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),coinsPrices * coinsDestroyPercentage / 100);
+                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices - coinsPrices * coinsDestroyPercentage / 100);
             }
         }else{
-            success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,_coins[coinsType_]._coinsPrice);
+            success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices);
         }
         require(success, "017---send coins to feeto address fail");
         //NFT
@@ -560,5 +559,11 @@ contract SNS is NFT {
     function setFeeTo(address newFeeTo_) external virtual assetsManagerAllowed(_msgSender()){
         _feeTo = newFeeTo_; 
     }
+
+  
+    /** v2.1 upgrade
+    *1. price (add 100 price 2%)
+    *2.Optimize code space
+    */
 
 }
