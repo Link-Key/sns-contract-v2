@@ -10,7 +10,7 @@ import "./NFT.sol";
 import "./LinkKey.sol";
 import "./SNSResolver.sol";
 
-contract SNS is NFT {
+contract SNSV is NFT {
     using SafeMathUpgradeable for uint256;
     using LibString for string;
 
@@ -170,7 +170,7 @@ contract SNS is NFT {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-        (uint256 maticPrice,) = getPrice();
+        (uint256 maticPrice,,) = getPrice();
         require(msg.value == maticPrice, "005---msg.value error");
         
         //Management address to collect money
@@ -421,23 +421,33 @@ contract SNS is NFT {
      * v2.1 add 100 price 2%
      * @dev getPrice
      */
-    function getPrice() public view  returns(uint256 maticPrice,uint256 keyPrice) {
+    function getPrice() public view  returns(uint256 maticPrice,uint256 keyPrice,uint256 lowbPrice) {
         uint256 tokenMinted = super.getTokenMinted();
 
         if(tokenMinted < 10000){
-            return (1 ether,_coins[1]._coinsPrice);
+            maticPrice = 1 ether;
         }else{
             if(tokenMinted > 16000){
                 uint256 times = (tokenMinted.sub(16000)).div(_increasesNumber);
                 maticPrice = (10 ether * (100 + (times.mul(_increasesPrice)))).div(100);
-                // keyPrice = (_coins[1]._coinsPrice * (100 + (times.mul(_increasesPrice)))).div(100);
-                keyPrice = _coins[1]._coinsPrice;
-                return (maticPrice,keyPrice);
             }else{
-                return (10 ether,_coins[1]._coinsPrice);
+                maticPrice = 10 ether;
             }
         }
+
+        keyPrice = _coins[1]._coinsPrice;
+        lowbPrice = _coins[2]._coinsPrice;
+        //2022-06-01 00:00:00
+        if(block.timestamp>1654012800){
+            lowbPrice = 400000 ether;
+        }
+
+        //2022-05-16 23:30:00
+        // if(block.timestamp>1652715000){
+        //     lowbPrice = 4 ether;
+        // }
         
+        return (maticPrice,keyPrice,lowbPrice);
     }
 
     /**
@@ -529,19 +539,32 @@ contract SNS is NFT {
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
        
         // require(msg.value == getPrice(), "005---msg.value error");
-        (,uint256 coinsPrices) = getPrice();
-        //Management address to collect money
-        require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= coinsPrices,"019---allowance error!!!");
+        (,uint256 coinsPrices,uint256 lowbPrices) = getPrice();
+
         bool success;
-        if(_coins[coinsType_]._coinsDestroy){
+        if(coinsType_ == 2){
+           //Management address to collect money
+            require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= lowbPrices,"019---allowance error!!!");
             uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
             if(coinsDestroyPercentage != 0){
-                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),coinsPrices * coinsDestroyPercentage / 100);
-                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices - coinsPrices * coinsDestroyPercentage / 100);
+                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),lowbPrices * coinsDestroyPercentage / 100);
+                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(0x1EC0E4DC543566f26B73800700080B4b2f3fD208),lowbPrices - lowbPrices * coinsDestroyPercentage / 100);
             }
         }else{
-            success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices);
+            //Management address to collect money
+            require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= coinsPrices,"019---allowance error!!!");
+            
+            if(_coins[coinsType_]._coinsDestroy){
+                uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
+                if(coinsDestroyPercentage != 0){
+                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),coinsPrices * coinsDestroyPercentage / 100);
+                    success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices - coinsPrices * coinsDestroyPercentage / 100);
+                }
+            }else{
+                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices);
+            }
         }
+        
         require(success, "017---send coins to feeto address fail");
         //NFT
         uint256 tokenId = _addrMint();
@@ -565,5 +588,14 @@ contract SNS is NFT {
     *1. price (add 100 price 2%)
     *2.Optimize code space
     */
+
+    /**
+    *v2.2
+    *1. 30W LOWB to register a SNS, limited time to May 31st
+    *2. From June 1st, it will be adjusted to 40WLOWB to register one
+    *3. When an SNS is registered, 70% of the registration fee will be destroyed, and 30% of the registration fee will go to the LOWB Foundation address.
+    *Lowb contract address (Polygon):0x1c0a798b5a5273a9e54028eb1524fd337b24145f
+    *loser foundation address: 0x1EC0E4DC543566f26B73800700080B4b2f3fD208
+     */
 
 }
