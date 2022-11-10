@@ -5,19 +5,17 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "../util/LibString.sol";
-import "../util/Key.sol";
-import "../v2/NFTV2.sol";
-import "../v2.4/SNSResolverV2_4.sol";
-import "../v2.3/InviteInterface.sol";
-import "../v2.4/ISns.sol";
+import "./util/LibString.sol";
+import "./NFT.sol";
+import "./LinkKey.sol";
+import "./SNSResolver.sol";
 
-contract SNSV2_6 is NFTV2 , ISns{
+contract SNS is NFT {
     using SafeMathUpgradeable for uint256;
     using LibString for string;
 
     //ERC20 key address
-    Key private _key;
+    LinkKey private _key;
     string private END_STR;
     uint256 private STANDARD_LENGTH;
     uint256 private SHORT_LENGTH_MAX;
@@ -87,7 +85,7 @@ contract SNSV2_6 is NFTV2 , ISns{
      */
     function initialize(address key_, string memory name_, string memory symbol_,address payable feeTo_) public initializer {
         //key
-        _key = Key(key_);
+        _key = LinkKey(key_);
 
         //ERC721
         __NFT_init(name_,symbol_);
@@ -116,12 +114,21 @@ contract SNSV2_6 is NFTV2 , ISns{
      * @dev setShortNameAllowed
      * @param addrs_ address list
      */
-    function setShortNameAllowed(address[] memory addrs_,bool allowed_) external virtual onlyOwner {
+    function setShortNameAllowed(address[] memory addrs_) external virtual onlyOwner {
         for (uint256 i = 0; i < addrs_.length; i ++) {
-            _shortNameAllowedlist[addrs_[i]] = allowed_;
+            _shortNameAllowedlist[addrs_[i]] = true;
         }
     }
 
+    /**
+     * @dev removeWhitelist
+     * @param addrs_ address list
+     */
+    function removeShortNameAllowed(address[] memory addrs_) external virtual onlyOwner {
+        for (uint256 i = 0; i < addrs_.length; i ++) {
+            _shortNameAllowedlist[addrs_[i]] = false;
+        }
+    }
 
     /**
      * @dev set ShortLength
@@ -145,7 +152,6 @@ contract SNSV2_6 is NFTV2 , ISns{
      * @dev setIncreases
      * @param increasesNumber_ uint256
      * @param increasesPrice_ uint256
-     * v2.1 increasesNumber_:100 increasesPrice_:2
      */
     function setIncreases(uint256 increasesNumber_,uint256 increasesPrice_) external virtual onlyOwner {
         _increasesNumber =  increasesNumber_;
@@ -163,23 +169,12 @@ contract SNSV2_6 is NFTV2 , ISns{
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
-        (uint256 maticPrice,,,) = getPrice(address(0));
-        require(msg.value == maticPrice, "005---msg.value error");
+       
+        require(msg.value == getPrice(), "005---msg.value error");
         
         //Management address to collect money
-        bool success;
-        // if(_invite.isInviter(inviter_)) {
-        //     (success, ) = payable(inviter_).call{value: msg.value * (100 - _invite.inviteDiscountRate()) / 100}("");
-        //     require(success, "015---send matic to inviter address fail");
-        //     (success, ) = payable(_feeTo).call{value: msg.value * _invite.inviteDiscountRate() / 100}("");
-        // } else {
-        //     (success, ) = payable(_feeTo).call{value: msg.value}("");
-        // }
-        (success, ) = payable(_feeTo).call{value: msg.value}("");
+        (bool success, ) = payable(_feeTo).call{value: msg.value}("");
         require(success, "015---send matic to feeto address fail");
-
-        // _invite.addInviterCount(inviter_);
-
         //NFT
         uint256 tokenId = _addrMint();
         //ENS
@@ -197,34 +192,10 @@ contract SNSV2_6 is NFTV2 , ISns{
     /**
      * @dev shortNameMint
      * @param name_ SNS name
-     @param payWay_ 1:matic 2:key
      */
-    function shortNameMint(string memory name_, uint256 payWay_) external virtual payable {
+    function shortNameMint(string memory name_) external virtual shortNameAllowed(_msgSender()){
         name_ = name_.trim(" ");
         require(name_.lenOfChars() >= SHORT_LENGTH_MIN && name_.lenOfChars() >= SHORT_LENGTH_MAX, "015---name length error");
-
-        Response memory response = getInfo(_msgSender(),"",0);
-        PriceOfShort memory priceOfShort = response.priceOfShort;
-
-        bool success;
-        uint256 feeAmount;
-
-        if(priceOfShort.maticPrice == 0 && priceOfShort.keyPrice == 0){
-            success = true;
-        }else{
-            if(payWay_ == 1){
-                feeAmount = priceOfShort.maticPrice;
-                require(msg.value >= feeAmount,"feeAmount not enough");
-                (success, ) = payable(_feeTo).call{value: msg.value}("");
-            }else if(payWay_ == 2){
-                feeAmount = priceOfShort.keyPrice;
-                success = IERC20(priceOfShort.keyAddress).transferFrom(_msgSender(),_feeTo,feeAmount);
-            }else{
-                require(false,"error payWay");
-            }
-        }
-        
-        require(success, "017---send coins to feeto address fail");
         //NFT
         uint256 tokenId = _addrMint();
 
@@ -237,9 +208,54 @@ contract SNSV2_6 is NFTV2 , ISns{
         //Key
         _key.mint();
         emit Mint(_msgSender(), name_, tokenId);
+    }
 
-        _shortNameAllowedlist[_msgSender()] = false;
-        _freeShortMint[_msgSender()] = false;
+    /**
+     * @dev Management address batchManagerMint
+     * @param names_ SNS name
+     * @param tos_ SNS owner
+     */
+    function batchManagerMint(string[] memory names_, address[] memory tos_,uint256[] memory tokenIds_, bool isKeyMint_) external virtual userTokenManagerAllowed(_msgSender()) {
+        for (uint256 i = 0; i < names_.length; i++) {
+            _managerMint(names_[i], tos_[i], tokenIds_[i], isKeyMint_);
+        }
+    }
+
+    /**
+     * @dev Management address registration
+     * @param name_ SNS name
+     * @param to_ SNS owner
+     * @param isKeyMint_  when mint
+     */
+    function _managerMint(string memory name_, address to_,uint256 tokenId_, bool isKeyMint_) internal virtual returns (bool success){
+        require(_canManagerMint,"016---manager can't mint");
+        name_ = name_.trim(" ");
+        if(!name_.equalNocase(" ") && name_.lenOfChars()>0){
+            success = true;
+        }
+        name_ = name_.toLowercase();
+        name_ = name_.concat(END_STR);
+
+        if(!_nameRegistered[name_] && !_registered[to_] && success){
+            //NFT
+            uint256 tokenId = _manageMint(to_,tokenId_);
+            if(tokenId == 0){
+                return false;
+            }
+
+            //ENS
+            require(_registerName(name_, to_), "003---Name register fail");
+            _nameOfTokenId[tokenId] = name_;
+            _tokenIdOfName[name_] = tokenId;
+
+            //Key
+            if(isKeyMint_){
+                _key.mint();
+            }
+            emit ManagerMint(_msgSender(), name_, to_, tokenId);
+        }
+            
+        return success;
     }
 
     /**
@@ -254,7 +270,7 @@ contract SNSV2_6 is NFTV2 , ISns{
         _nameOfOwner[to_] = name_;
         _resolverInfo[name_].resolverAddress = _defaultResolverAddress;
         _resolverInfo[name_].owner = to_;
-        SNSResolverV2_4(_defaultResolverAddress).setRecords(name_, to_);
+        SNSResolver(_defaultResolverAddress).setRecords(name_, to_);
         _nameRegistered[name_] = true;
         _registered[to_] = true;
         return true;
@@ -330,13 +346,12 @@ contract SNSV2_6 is NFTV2 , ISns{
     function _transferName(address form_, address to_, string memory name_) internal virtual returns (bool){
         require(!_registered[to_], "011---to_ has a name");
         require(_nameOfOwner[form_].equal(name_), "012---form_ is not the owner of name");
-        require(!_tokenStaked[_tokenIdOfName[name_]],"your token is in stake");
         _resolverInfo[name_].owner = to_;
         _nameOfOwner[form_] = "";
         _nameOfOwner[to_] = name_;
         _registered[form_] = false;
         _registered[to_] = true;
-        SNSResolverV2_4(_defaultResolverAddress).setRecords(name_, to_);
+        SNSResolver(_defaultResolverAddress).setRecords(name_, to_);
         emit TransferName(_msgSender(), form_, to_, name_);
         return true;
     }
@@ -350,80 +365,77 @@ contract SNSV2_6 is NFTV2 , ISns{
         return _shortNameAllowedlist[addr_];
     }
 
-    function getInfo(address addr_,string memory name_,uint256 tokenId_) public view returns (Response memory addressResp){
-        PriceOfShort memory priceOfShort = _priceOfShorts[3];
-        bool isOutOfferEndingTime = block.timestamp > _offerEndingTime;
-        if(!isOutOfferEndingTime){
-            if(_freeShortMint[addr_]){
-                priceOfShort = PriceOfShort({
-                    maticPrice:_priceOfShorts[3].maticPrice.mul(_percentage[0]).div(1000),
-                    keyAddress:_priceOfShorts[3].keyAddress,
-                    keyPrice:_priceOfShorts[3].keyPrice.mul(_percentage[0]).div(1000)
-                });
-            }else{
-                if(_shortNameAllowedlist[addr_]){
-                    priceOfShort = PriceOfShort({
-                        maticPrice:_priceOfShorts[3].maticPrice.mul(_percentage[1]).div(1000),
-                        keyAddress:_priceOfShorts[3].keyAddress,
-                        keyPrice:_priceOfShorts[3].keyPrice.mul(_percentage[1]).div(1000)
-                    });
-                }
-            }
-        }
-
-        addressResp = Response({
-            shortNameAllowed:_shortNameAllowedlist[addr_],
-            addressRegistered:_registered[addr_],
-            nameOfOwner:_nameOfOwner[addr_],
-            recordExists:_nameRegistered[name_],
-            tokenIdOfName:_tokenIdOfName[name_],
-            resolverOwner:_resolverInfo[name_].owner,
-            resolverAddress:_resolverInfo[name_].resolverAddress,
-            nameOfTokenId:_nameOfTokenId[tokenId_],
-            priceOfShort:priceOfShort
-        });
+    /**
+     * @dev recordExists
+     */
+    function recordExists(string memory name_) public view returns (bool){
+        return _nameRegistered[name_];
     }
 
     /**
-     * v2.1 add 100 price 2%
+     * @dev _addressRegistered
+     */
+    function getAddressRegistered(address addr_) public view returns (bool){
+        return _registered[addr_];
+    }
+
+    /**
+     * @dev getNameOfOwner
+     */
+    function getNameOfOwner(address addr_) public view returns (string memory){
+        return _nameOfOwner[addr_];
+    }
+
+    /**
+    * @dev getNameOfTokenId
+     */
+    function getNameOfTokenId(uint256 tokenId_) public view returns (string memory){
+        return _nameOfTokenId[tokenId_];
+    }
+
+    /**
+    * @dev getTokenIdOfName
+     */
+    function getTokenIdOfName(string memory name_) public view returns (uint256){
+        return _tokenIdOfName[name_];
+    }
+
+    /**
+     * @dev getResolverOwner
+     * @param name_  SNS name
+     */
+    function getResolverOwner(string memory name_) view external returns (address){
+        return _resolverInfo[name_].owner;
+    }
+
+    /**
+     * @dev getResolverAddress
+     * @param name_  SNS name
+     */
+    function getResolverAddress(string memory name_) view external returns (address){
+        return _resolverInfo[name_].resolverAddress;
+    }
+
+    /**
      * @dev getPrice
      */
-    function getPrice(address inviter_) public view  returns(uint256 maticPrice,uint256 keyPrice,uint256 lowbPrice,uint256 usdcPrice) {
+    function getPrice() public view  returns(uint256 price) {
         uint256 tokenMinted = super.getTokenMinted();
-
         if(tokenMinted < 10000){
-            maticPrice = 1 ether;
+            return 1 ether;
         }else{
-            if(tokenMinted > 16000){
-                uint256 times = (tokenMinted.sub(16000)).div(_increasesNumber);
-                maticPrice = (10 ether * (100 + (times.mul(_increasesPrice)))).div(100);
-            }else{
-                maticPrice = 10 ether;
+            uint256 times = super.getTokenMinted().div(_increasesNumber);
+            price = 10 ether;
+
+            if(times > 1){
+                for(uint256 i = 1; i < times; i++){
+                    price = price.mul(_increasesPrice).div(1 ether);
+                }
             }
+
+            return price;
         }
-
-
-        keyPrice = _coins[1]._coinsPrice;
-        if(tokenMinted > 23000){
-            keyPrice = 30 ether;
-        }
-        lowbPrice = _coins[2]._coinsPrice;
-        //2022-06-01 00:00:00
-        if(block.timestamp>1654012800){
-            lowbPrice = 400000 ether;
-        }
-
-        usdcPrice = _coins[3]._coinsPrice;
-        if(tokenMinted >= 20300){
-            usdcPrice += (tokenMinted.sub(20300).div(100)) * 25* 10**4;
-        }
-
-        // maticPrice = _invite.getInviteDiscountPrice(maticPrice, inviter_);
-        keyPrice = _invite.getInviteDiscountPrice(keyPrice, inviter_);
-        // lowbPrice = _invite.getInviteDiscountPrice(lowbPrice, inviter_);
-        // usdcPrice = _invite.getInviteDiscountPrice(usdcPrice, inviter_);
-
-        return (maticPrice,keyPrice,lowbPrice,usdcPrice);
+        
     }
 
     /**
@@ -440,11 +452,17 @@ contract SNSV2_6 is NFTV2 , ISns{
     */
     mapping(address=>bool) _userTokenManagerList;
 
-    // function setUserTokenManager(address[] memory addrs_,bool status_) external virtual onlyOwner {
-    //     for (uint256 i = 0; i < addrs_.length; i ++) {
-    //         _userTokenManagerList[addrs_[i]] = status_;
-    //     }
-    // }
+    function setUserTokenManager(address[] memory addrs_) external virtual onlyOwner {
+        for (uint256 i = 0; i < addrs_.length; i ++) {
+            _userTokenManagerList[addrs_[i]] = true;
+        }
+    }
+
+    function removeUserTokenManager(address[] memory addrs_) external virtual onlyOwner {
+        for (uint256 i = 0; i < addrs_.length; i ++) {
+            _userTokenManagerList[addrs_[i]] = false;
+        }
+    }
 
     modifier userTokenManagerAllowed(address addr_) {
         require(_userTokenManagerList[addr_], "016---addr_ is not in _setTokenURIManagerList");
@@ -457,11 +475,17 @@ contract SNSV2_6 is NFTV2 , ISns{
 
     mapping(address=>bool) _assetsManagerList;
 
-    // function setAssetsManager(address[] memory addrs_,bool status_) external onlyOwner {
-    //     for (uint256 i = 0; i < addrs_.length; i ++) {
-    //         _assetsManagerList[addrs_[i]] = status_;
-    //     }
-    // }
+    function setAssetsManager(address[] memory addrs_) external onlyOwner {
+        for (uint256 i = 0; i < addrs_.length; i ++) {
+            _assetsManagerList[addrs_[i]] = true;
+        }
+    }
+
+    function removeAssetsManager(address[] memory addrs_) external onlyOwner {
+        for (uint256 i = 0; i < addrs_.length; i ++) {
+            _assetsManagerList[addrs_[i]] = false;
+        }
+    }
 
     modifier assetsManagerAllowed(address addr_) {
         require(_assetsManagerList[addr_], "018---addr_ is not in _assetsManagerList");
@@ -484,65 +508,42 @@ contract SNSV2_6 is NFTV2 , ISns{
         _coins[newCoinsType_]._coinsDestroyPercentage = coinsDestroyPercentage_;
     }
 
-    function getCoinsInfo(uint256 coinsType_) view external returns (address,uint256,bool,uint256){
-        return (_coins[coinsType_]._coinAddress,_coins[coinsType_]._coinsPrice,_coins[coinsType_]._coinsDestroy,_coins[coinsType_]._coinsDestroyPercentage);
-    }    
+    function getCoinsAddress(uint256 coinsType_) view external returns (address){
+        return _coins[coinsType_]._coinAddress;
+    }
 
-    /**
-    *v2.1 add 100 price 2%
-    */
-    function mintByMoreCoins(string memory name_,uint256 coinsType_,address inviter_) external {
+    function getCoinsPrice(uint256 coinsType_) view external returns (uint256){
+        return _coins[coinsType_]._coinsPrice;
+    }
+
+    function getCoinsDestroy(uint256 coinsType_) view external returns (bool){
+        return _coins[coinsType_]._coinsDestroy;
+    }
+
+    function getCoinsDestroyPercentage(uint256 coinsType_) view external returns (uint256){
+        return _coins[coinsType_]._coinsDestroyPercentage;
+    }
+
+    function mintByMoreCoins(string memory name_,uint256 coinsType_) external {
         //only trim the " " in the start and the end of name "12 34" can't be trim to "1234"
         name_ = name_.trim(" "); 
         require(name_.lenOfChars() >= STANDARD_LENGTH, "007---name length is less than 4");
        
         // require(msg.value == getPrice(), "005---msg.value error");
-        (,uint256 coinsPrices,uint256 lowbPrices,uint256 usdcPrices) = getPrice(inviter_);
-        if(coinsType_!=1){
-            inviter_ = address(0);
-        }
+        
+        //Management address to collect money
+        require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= _coins[coinsType_]._coinsPrice,"019---allowance error!!!");
         bool success;
-        //lowb
-        if(coinsType_ == 2){
-            require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= lowbPrices,"019---allowance error!!!");
+        if(_coins[coinsType_]._coinsDestroy){
             uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
             if(coinsDestroyPercentage != 0){
-                if(_invite.isInviter(inviter_)) {
-                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,(lowbPrices * coinsDestroyPercentage / 100) * (100 - _invite.inviteDiscountRate()) / 100);
-                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(lowbPrices * coinsDestroyPercentage  / 100) * _invite.inviteDiscountRate() / 100);
-                }else{
-                    IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),lowbPrices * coinsDestroyPercentage / 100);
-                }
-                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(0x1EC0E4DC543566f26B73800700080B4b2f3fD208),lowbPrices - lowbPrices * coinsDestroyPercentage / 100);
+                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),_coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
+                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,_coins[coinsType_]._coinsPrice - _coins[coinsType_]._coinsPrice * coinsDestroyPercentage / 100);
             }
         }else{
-            //usdc
-            if(coinsType_ == 3){
-                coinsPrices = usdcPrices;
-            }
-            require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= coinsPrices,"019---allowance error!!!");
-            
-            if(_coins[coinsType_]._coinsDestroy){
-                uint256 coinsDestroyPercentage = _coins[coinsType_]._coinsDestroyPercentage;
-                if(coinsDestroyPercentage != 0){
-                    if(_invite.isInviter(inviter_)) {
-                        uint256 inviterIncome = (coinsPrices * coinsDestroyPercentage / 100) * (100 - _invite.inviteDiscountRate()) / 100;
-                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,inviterIncome);
-                        _invite.setInviterIncome(inviter_,inviterIncome);
-                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(coinsPrices * coinsDestroyPercentage  / 100) * _invite.inviteDiscountRate() / 100);
-                    }else{
-                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),coinsPrices * coinsDestroyPercentage / 100);
-                    }
-                    success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices - coinsPrices * coinsDestroyPercentage / 100);
-                }
-            }else{
-                success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,coinsPrices);
-            }
+            success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),_feeTo,_coins[coinsType_]._coinsPrice);
         }
-        
         require(success, "017---send coins to feeto address fail");
-
-        _invite.addInviterCount(inviter_);
         //NFT
         uint256 tokenId = _addrMint();
         //ENS
@@ -556,92 +557,8 @@ contract SNSV2_6 is NFTV2 , ISns{
         emit Mint(_msgSender(), name_, tokenId);
     }
 
-    // function setFeeTo(address newFeeTo_) external virtual assetsManagerAllowed(_msgSender()){
-    //     _feeTo = newFeeTo_; 
-    // }
-
-
-    InviteInterface private _invite;
-
-    /**
-    * Invite contract to be called after deployment is complete
-    */
-    // function initializeInvite(address inviteAddress_) external virtual onlyOwner {
-    //     _invite = InviteInterface(inviteAddress_);
-    // }
-
-    address private _stakeAddress;
-    mapping(uint256=>bool) private _tokenStaked;
-    function setStakeAddress(address stakeAddress_) external virtual onlyOwner {
-        _stakeAddress = stakeAddress_; 
+    function setFeeTo(address newFeeTo_) external virtual assetsManagerAllowed(_msgSender()){
+        _feeTo = newFeeTo_; 
     }
-    
-    function setStake(uint256 tokenId_,bool staked) public override{
-        require(_msgSender() == _stakeAddress,"not you");
-        _tokenStaked[tokenId_] = staked;
-    }
-
-    function getStake(uint256 tokenId_) public view returns(bool tokenStaked){
-        tokenStaked = _tokenStaked[tokenId_];
-    }
-  
-    /** v2.1 upgrade
-    *1. price (add 100 price 2%)
-    *2. Optimize code space
-    */
-
-    /**
-    *v2.2
-    *1. 30W LOWB to register a SNS, limited time to May 31st
-    *2. From June 1st, it will be adjusted to 40WLOWB to register one
-    *3. When an SNS is registered, 70% of the registration fee will be destroyed, and 30% of the registration fee will go to the LOWB Foundation address.
-    *Lowb contract address (Polygon):0x1c0a798b5a5273a9e54028eb1524fd337b24145f
-    *loser foundation address: 0x1EC0E4DC543566f26B73800700080B4b2f3fD208
-     */
-
-    //Three-digit registration fee
-    mapping(uint256 => PriceOfShort) private _priceOfShorts;
-
-    uint256 private _offerEndingTime;
-
-    mapping(address => bool) private _freeShortMint;
-
-    //1 : 50% 2:0
-    mapping(uint256 => uint256) private _percentage;
-
-    /**
-     * @dev setPriceOfShorts
-     * v2.5 
-     */
-    function setShortMintParams(
-        uint256 shortLength_,
-        uint256 maticPrice_,
-        address keyAddress_,
-        uint256 keyPrice_,
-        uint256 offerEndingTime_,
-        address[] memory addrs_,
-        bool isFreeShortMint_) 
-    external virtual onlyOwner{
-
-        if(maticPrice_ != 0 && keyPrice_ != 0){
-            _priceOfShorts[shortLength_].maticPrice = maticPrice_;
-            _priceOfShorts[shortLength_].keyAddress = keyAddress_;
-            _priceOfShorts[shortLength_].keyPrice = keyPrice_;
-        }
-
-        if(offerEndingTime_ != 0){
-            _offerEndingTime = offerEndingTime_;
-        }
-
-        if(addrs_.length != 0){
-            for (uint256 i = 0; i < addrs_.length; i ++) {
-                _freeShortMint[addrs_[i]] = isFreeShortMint_;
-            }
-        }
-        _percentage[0] = 0;
-        _percentage[1] = 500;
-    }
-
-    
 
 }
