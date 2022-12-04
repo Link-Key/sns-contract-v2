@@ -10,7 +10,7 @@ import "../util/Key.sol";
 import "../v2/NFTV2.sol";
 import "../v2.4/SNSResolverV2_4.sol";
 import "../v2.3/InviteInterface.sol";
-import "../v2.7/ISns.sol";
+import "./ISns.sol";
 
 contract SNSV2_8 is NFTV2 , ISns{
     using SafeMathUpgradeable for uint256;
@@ -85,24 +85,24 @@ contract SNSV2_8 is NFTV2 , ISns{
      * @param symbol_ NFT symbol
      * @param feeTo_ feeAddress
      */
-    function initialize(address key_, string memory name_, string memory symbol_,address payable feeTo_) public initializer {
-        //key
-        _key = Key(key_);
+    // function initialize(address key_, string memory name_, string memory symbol_,address payable feeTo_) public initializer {
+    //     //key
+    //     _key = Key(key_);
 
-        //ERC721
-        __NFT_init(name_,symbol_);
+    //     //ERC721
+    //     __NFT_init(name_,symbol_);
 
-        _feeTo = feeTo_;
-        END_STR = ".key";
-        STANDARD_LENGTH = 4;
-        SHORT_LENGTH_MAX = 3;
-        SHORT_LENGTH_MIN = 3;
+    //     _feeTo = feeTo_;
+    //     END_STR = ".key";
+    //     STANDARD_LENGTH = 4;
+    //     SHORT_LENGTH_MAX = 3;
+    //     SHORT_LENGTH_MIN = 3;
 
-        _canManagerMint = true;
+    //     _canManagerMint = true;
 
-        _increasesNumber = 10000;
-        _increasesPrice = 5  / 10 * 1 ether;
-    }
+    //     _increasesNumber = 10000;
+    //     _increasesPrice = 5  / 10 * 1 ether;
+    // }
 
     /**
      * @dev setDefaultResolverAddress
@@ -372,9 +372,9 @@ contract SNSV2_8 is NFTV2 , ISns{
             }
         }
 
-        if(_isOffer){
-           priceOfShort.keyPrice = priceOfShort.keyPrice.mul(_offerRate).div(1000);
-           priceOfShort.maticPrice = priceOfShort.maticPrice.mul(_offerRate).div(1000); 
+        if(_offer.offerOpen ? (block.timestamp - _offer.offerStartTime) % _offer.offerPeriod <= _offer.offerTime : false){
+           priceOfShort.keyPrice = priceOfShort.keyPrice.mul(_offer.offerRate).div(1000);
+           priceOfShort.maticPrice = priceOfShort.maticPrice.mul(_offer.offerRate).div(1000); 
         }
 
         addressResp = Response({
@@ -429,11 +429,11 @@ contract SNSV2_8 is NFTV2 , ISns{
         // lowbPrice = _invite.getInviteDiscountPrice(lowbPrice, inviter_);
         // usdcPrice = _invite.getInviteDiscountPrice(usdcPrice, inviter_);
 
-        if(_isOffer){
-            maticPrice = maticPrice.mul(_offerRate).div(1000);
-            keyPrice = keyPrice.mul(_offerRate).div(1000);
-            lowbPrice = lowbPrice.mul(_offerRate).div(1000);
-            usdcPrice = usdcPrice.mul(_offerRate).div(1000);
+        if(_offer.offerOpen ? (block.timestamp - _offer.offerStartTime) % _offer.offerPeriod <= _offer.offerTime : false){
+            maticPrice = maticPrice.mul(_offer.offerRate).div(1000);
+            keyPrice = keyPrice.mul(_offer.offerRate).div(1000);
+            lowbPrice = lowbPrice.mul(_offer.offerRate).div(1000);
+            usdcPrice = usdcPrice.mul(_offer.offerRate).div(1000);
         }
         return (maticPrice,keyPrice,lowbPrice,usdcPrice);
     }
@@ -656,12 +656,16 @@ contract SNSV2_8 is NFTV2 , ISns{
     }
 
     //2.8 Thursday/Friday is offer 50%
-    bool private _isOffer;
-    uint256 private _offerRate;// 500/1000
-
-    function setIsOffer(bool isOffer,uint256 offerRate) public virtual userTokenManagerAllowed(_msgSender()){
-        _isOffer = isOffer;
-        _offerRate = offerRate;
+    Offer private _offer;
+    
+    function setIsOffer( uint256 offerStartTime_,uint256  offerPeriod_,uint256  offerTime_,uint256  offerRate_,bool offerOpen_) public virtual onlyOwner{
+       _offer = Offer({
+        offerStartTime:offerStartTime_,
+        offerPeriod:offerPeriod_,
+        offerTime:offerTime_,
+        offerRate:offerRate_,
+        offerOpen:offerOpen_
+       });
     }
 
 }
