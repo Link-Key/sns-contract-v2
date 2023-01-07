@@ -105,7 +105,7 @@ module.exports = {
       gasPrice: 50000000000,
     },
     polygon_test_account1: {
-      url: process.env.POLYGON_URL_A + alchemyApiKey2 || '',
+      url: process.env.POLYGON_URL_A + alchemyApiKey1 || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
       gasLimit: 30000000,
