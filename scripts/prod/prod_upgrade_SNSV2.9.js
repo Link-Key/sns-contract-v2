@@ -20,15 +20,17 @@ async function main() {
 
   const LinkKey = await ethers.getContractFactory('LinkKey')
 
-  const linkKey = await LinkKey.attach(testAddress.keyAddress)
+  const linkKey = await LinkKey.attach(mainAddress.keyAddress)
   console.log('LinkKey deployed to:', linkKey.address)
 
-  const sns = await upgradeSns(SNS);
-  // const { sns } = await attachOld(SNS)
+  // const sns = await upgradeSns(SNS);
+  const { sns } = await attachOld(SNS)
 
   // await _invite(sns);
 
   // await deployInviter(Inviter);
+
+  // await upgradeInviter(Inviter);
   const invite = await attachOldInvite(Inviter)
 
   // await setInvite(sns);
@@ -41,7 +43,7 @@ async function main() {
 
   // await mint(sns, linkKey, deployer.address);
 
-  // await getInviterIncome(sns, invite, deployer.address);
+  await getInviterIncome(sns, invite, deployer.address);
 
   // await InstitutionalRegist(sns);
 }
@@ -49,7 +51,7 @@ async function main() {
 async function upgradeSns(SNS) {
   console.log('sns upgrade ing....')
   const sns = await upgrades.upgradeProxy(
-    testAddress.newSnsAddress,
+    mainAddress.snsAddress,
     SNS,
   )
   await sns
@@ -59,41 +61,16 @@ async function upgradeSns(SNS) {
 
 
 async function attachOld(SNS) {
-  const sns = await SNS.attach(testAddress.newSnsAddress);
+  const sns = await SNS.attach(mainAddress.snsAddress);
   console.log('sns attach success', sns.address)
 
   return { sns }
 }
 
-async function deployInviter(Inviter) {
-  console.log('deploy Invite...')
-  const invite = await upgrades.deployProxy(
-    Inviter,
-    [
-      '0x23bf7e618c5C2F2772620aa7D57fE6db27eeA176',
-      '0xFA12F5ff3c2A137a02F1678E50c54276624b50FB',
-      '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
-      1 * 10 ** 8
-    ],
-    {
-      initializer: 'initialize',
-    },
-  )
-  await invite.deployed()
-  console.log('Invite deploy success to:', invite.address)
-}
-
-async function setInvite(sns) {
-  console.log('sns setInvite ing....')
-  const setInviteTx = await sns.initializeInvite('0x4C3cF7c8dcABc5514d30311BFC3FEE62e832D1B0')
-  setInviteTx.wait()
-  console.log('sns setInvite success')
-}
-
 async function upgradeInviter(Inviter) {
-  console.log('inviter upgrade ing....', testAddress.inviteAddress)
+  console.log('inviter upgrade ing....', mainAddress.inviteAddress)
   const inviter = await upgrades.upgradeProxy(
-    testAddress.inviteAddress,
+    mainAddress.inviteAddress,
     Inviter,
   )
   await inviter
@@ -102,7 +79,7 @@ async function upgradeInviter(Inviter) {
 }
 
 async function attachOldInvite(Inviter) {
-  const invite = await Inviter.attach(testAddress.inviteAddress);
+  const invite = await Inviter.attach(mainAddress.inviteAddress);
   console.log('invite attach success', invite.address)
 
   return invite
@@ -184,7 +161,7 @@ async function getInviterIncome(sns, invite, inviter) {
   const inviterIncome = await invite.getInviterIncome(inviter, 1);
   console.log('invite getInviterIncome success', inviterIncome)
 
-  const info = await sns.getInfo(inviter, "", 0)
+  const info = await sns.getInfo(inviter, "", 0, "0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded")
   console.log('info', info)
 
   // const coinsInfo = await sns.getCoinsInfo(1);

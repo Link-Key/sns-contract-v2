@@ -9,7 +9,7 @@ import "../util/LibString.sol";
 import "../util/Key.sol";
 import "../v2/NFTV2.sol";
 import "../v2.4/ResolverV2_4.sol";
-import "../v2.8/ISns.sol";
+import "./ISns.sol";
 import "./InviteInterface.sol";
 
 contract SNSV2_9 is NFTV2 , ISns{
@@ -213,7 +213,9 @@ contract SNSV2_9 is NFTV2 , ISns{
                     if(_invite.canInviter(inviter_) && coinsType_ != 2) {
                         IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_, inviterIncome);
                         _invite.setInviterIncome(inviter_,inviterCoinsType,inviterIncome);
-                        IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(prices * coinsDestroyPercentage  / 100) - inviterIncome);
+                        if((prices * coinsDestroyPercentage  / 100) - inviterIncome > 0){
+                            IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(prices * coinsDestroyPercentage  / 100) - inviterIncome);
+                        }
                     }else{
                         IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),prices * coinsDestroyPercentage / 100);
                     }  
@@ -259,7 +261,7 @@ contract SNSV2_9 is NFTV2 , ISns{
         name_ = name_.trim(" ");
         require(name_.lenOfChars() >= SHORT_LENGTH_MIN && name_.lenOfChars() >= SHORT_LENGTH_MAX, "015---name length error");
 
-        Response memory response = getInfo(_msgSender(),"",0);
+        Response memory response = getInfo(_msgSender(),"",0,inviter_);
         PriceOfShort memory priceOfShort = response.priceOfShort;
 
         bool success;
@@ -405,8 +407,8 @@ contract SNSV2_9 is NFTV2 , ISns{
      */
     function _transferName(address form_, address to_, string memory name_) internal virtual returns (bool){
         require(!_registered[to_], "011---to_ has a name");
-        require(_nameOfOwner[form_].equal(name_), "012---form_ is not the owner of name");
-        require(!_tokenStaked[_tokenIdOfName[name_]],"your token is in stake");
+        // require(_nameOfOwner[form_].equal(name_), "012---form_ is not the owner of name");
+        // require(!_tokenStaked[_tokenIdOfName[name_]],"your token is in stake");
         _resolverInfo[name_].owner = to_;
         _nameOfOwner[form_] = "";
         _nameOfOwner[to_] = name_;
@@ -426,7 +428,7 @@ contract SNSV2_9 is NFTV2 , ISns{
         return _shortNameAllowedlist[addr_];
     }
 
-    function getInfo(address addr_,string memory name_,uint256 tokenId_) public view returns (Response memory addressResp){
+    function getInfo(address addr_,string memory name_,uint256 tokenId_, address inviter_) public view returns (Response memory addressResp){
         PriceOfShort memory priceOfShort = _priceOfShorts[3];
         bool isOutOfferEndingTime = block.timestamp > _offerEndingTime;
         if(!isOutOfferEndingTime){
@@ -451,6 +453,8 @@ contract SNSV2_9 is NFTV2 , ISns{
            priceOfShort.keyPrice = priceOfShort.keyPrice.mul(_offer.offerRate).div(1000);
            priceOfShort.maticPrice = priceOfShort.maticPrice.mul(_offer.offerRate).div(1000); 
         }
+
+        priceOfShort.maticPrice = _invite.getInviteDiscountPrice(priceOfShort.maticPrice, inviter_);
 
         addressResp = Response({
             shortNameAllowed:_shortNameAllowedlist[addr_],
@@ -648,14 +652,14 @@ contract SNSV2_9 is NFTV2 , ISns{
     // }
 
 
-    InviteInterface private _invite;
+    InviteInterface public _invite;
 
     /**
     * Invite contract to be called after deployment is complete
     */
-    // function initializeInvite(address inviteAddress_) external virtual onlyOwner {
-    //     _invite = InviteInterface(inviteAddress_);
-    // }
+    function initializeInvite(address inviteAddress_) external virtual onlyOwner {
+        _invite = InviteInterface(inviteAddress_);
+    }
 
     address private _stakeAddress;
     mapping(uint256=>bool) private _tokenStaked;

@@ -85,7 +85,7 @@ module.exports = {
     },
     //Manage Address
     polygon_main_account1: {
-      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey1 || '',
+      url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
       gasPrice: 50000000000,
