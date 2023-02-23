@@ -144,7 +144,7 @@ contract InviteV2 is OwnableUpgradeable,InviteInterface {
      */
     function getInviteDiscountPrice(uint256 price_, address inviter_) public view override returns (uint256)  {
         require(price_ > 0, "105---price_ must be greater than 0");
-        if (_isInviters[inviter_] && _inviterCounts[inviter_] < MAX_INVITER_AMOUNT) {
+        if (_isInviters[inviter_] ) {
             price_ = price_.mul(_inviteDiscountRate) / 100;
         }
         return price_;
@@ -204,9 +204,13 @@ contract InviteV2 is OwnableUpgradeable,InviteInterface {
     }
 
     function canInviter(address inviter_) external view override returns (bool){
-        return _isInviters[inviter_] && _inviterCounts[inviter_] < MAX_INVITER_AMOUNT;
+        return _isInviters[inviter_] ;
     }
     
+
+    // function getTotalInviters() external view returns (uint256){
+    //     return _totalInviters;
+    // }
 
 
 }
