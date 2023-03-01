@@ -17,12 +17,12 @@ async function main() {
 
   const SNS = await ethers.getContractFactory('SNSV3_2')
 
-  const sns = await upgradeSns(SNS);
-  // const { sns } = await attachOld(SNS)
+  // const sns = await upgradeSns(SNS);
+  const { sns } = await attachOld(SNS)
 
-  await setSystemInfo(sns);
+  // await setSystemInfo(sns);
 
-  await getPrice(sns, deployer.address, 'team', deployer.address);
+  // await getPrice(sns, deployer.address, 'team', deployer.address);
 
   // await mint(sns, linkKey, deployer.address, 'team', deployer.address);
 
@@ -31,8 +31,12 @@ async function main() {
 async function upgradeSns(SNS) {
   console.log('sns upgrade ing....')
   const sns = await upgrades.upgradeProxy(
-    testAddress.snsAddress,
+    mainAddress.snsAddress,
     SNS,
+    {
+      timeout: 0,
+      pollingInterval: 500
+    }
   )
   await sns
   console.log('sns upgrade success')
@@ -44,6 +48,8 @@ async function attachOld(SNS) {
   const sns = await SNS.attach(mainAddress.snsAddress);
   console.log('sns attach success', sns.address)
 
+  const owner = await sns.owner();
+  console.log('sns owner', owner)
   return { sns }
 }
 

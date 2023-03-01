@@ -70,7 +70,7 @@ contract SNSV3_2 is NFTV2 , ISns{
     //Mint value send to this address
     address private _feeTo;
 
-    event Mint(address sender_, string name_, uint256 indexed tokenId);
+    event Mint(address sender_, string name_, uint256 indexed tokenId, address inviter, uint256 coinsType, uint256 price);
 
     event ManagerMint(address sender_, string name_, address to_, uint256 indexed tokenId);
 
@@ -168,38 +168,39 @@ contract SNSV3_2 is NFTV2 , ISns{
 
         PriceInfo memory priceInfo = getPrice(_msgSender(),name_,inviter_);
 
+        uint256 price = 0;
         //Management address to collect money
-        bool success;
+        bool success = false;
 
         uint256 nameLength = name_.lenOfChars();
+        uint256 tokenMinted = super.getTokenMinted();
         if(nameLength < STANDARD_LENGTH){
             if(nameLength == 3){
-                uint256 prices;
                 if(priceInfo.maticPrice == 0 && priceInfo.keyPrice == 0){
                     success = true;
                 }else{
                     if(coinsType_ == 0){
-                        prices = priceInfo.maticPrice;
-                        uint256 inviterIncome = prices * (100 - _invite.inviteDiscountRate()) / 100;  
-                        require(msg.value >= prices,"feeAmount not enough");
+                        price = priceInfo.maticPrice;
+                        uint256 inviterIncome = price * (100 - _invite.inviteDiscountRate()) / 100;  
+                        require(msg.value >= price,"feeAmount not enough");
                         if(_invite.canInviter(inviter_)){
                             (success, ) = payable(inviter_).call{value: inviterIncome}("");
                             _invite.setInviterIncome(inviter_, 1, inviterIncome);
                             require(success, "015---send matic to inviter address fail");
-                            (success, ) = payable(_feeTo).call{value: prices - inviterIncome}("");
+                            (success, ) = payable(_feeTo).call{value: price - inviterIncome}("");
                         }else{
                             (success, ) = payable(_feeTo).call{value: msg.value}("");
                         }
                     }else if(coinsType_ == 1){
                         require(!_coins[1]._isClose,"token mint is close");
-                        prices = priceInfo.keyPrice;
-                        uint256 inviterIncome = prices * (100 - _invite.inviteDiscountRate()) / 100;  
+                        price = priceInfo.keyPrice;
+                        uint256 inviterIncome = price * (100 - _invite.inviteDiscountRate()) / 100;  
                         if(_invite.canInviter(inviter_)) {
                             IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),inviter_,inviterIncome);
                             _invite.setInviterIncome(inviter_,0,inviterIncome);
-                            success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),address(_feeTo),prices - inviterIncome);
+                            success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),address(_feeTo),price - inviterIncome);
                         }else{
-                            success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),address(_feeTo),prices);
+                            success = IERC20(_priceOfShorts[3].keyAddress).transferFrom(_msgSender(),address(_feeTo),price);
                         }
                     }else{
                         require(false,"error payWay");
@@ -209,40 +210,40 @@ contract SNSV3_2 is NFTV2 , ISns{
                 _shortNameAllowedlist[_msgSender()] = false;
                 _freeShortMint[_msgSender()] = false;
             }
-        }else if(nameLength >= systemInfo.freeMintLength){
+        }else if(nameLength >= systemInfo.freeMintLength && tokenMinted <= 100000){
             success = true;
         }else{
             if(coinsType_ == 0){
-                require(msg.value == priceInfo.maticPrice, "005---msg.value error");
+                price = priceInfo.maticPrice;
+                require(msg.value == price, "005---msg.value error");
                 if(_invite.canInviter(inviter_)) {
-                    uint256 inviterIncome = priceInfo.maticPrice * (100 - _invite.inviteDiscountRate()) / 100;
+                    uint256 inviterIncome = price * (100 - _invite.inviteDiscountRate()) / 100;
                     (success, ) = payable(inviter_).call{value: inviterIncome}("");
                     _invite.setInviterIncome(inviter_, 1, inviterIncome);
                     require(success, "015---send matic to inviter address fail");
-                    (success, ) = payable(_feeTo).call{value: priceInfo.maticPrice - inviterIncome}("");
+                    (success, ) = payable(_feeTo).call{value: price - inviterIncome}("");
                 } else {
-                    (success, ) = payable(_feeTo).call{value: priceInfo.maticPrice}("");
+                    (success, ) = payable(_feeTo).call{value: price}("");
                 }
             } else{
-                uint256 prices;
                 uint8 inviterCoinsType;
                 if(coinsType_ == 1){
-                    prices = priceInfo.keyPrice;
+                    price = priceInfo.keyPrice;
                     inviterCoinsType = 0;
                 }else if(coinsType_ == 2){
-                    prices = priceInfo.lowbPrice;
+                    price = priceInfo.lowbPrice;
                     inviterCoinsType = 99;
                 }else if(coinsType_ == 3){
-                    prices = priceInfo.usdcPrice;
+                    price = priceInfo.usdcPrice;
                     inviterCoinsType = 2;
                 }else{
-                    prices = 2**256 - 1;
+                    price = 2**256 - 1;
                     inviterCoinsType = 2**8 -1;
                 }
 
-                require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= prices,"019---allowance error!!!");
+                require(IERC20(_coins[coinsType_]._coinAddress).allowance(_msgSender(), address(this)) >= price,"019---allowance error!!!");
 
-                uint256 inviterIncome = prices * (100 - _invite.inviteDiscountRate()) / 100;    
+                uint256 inviterIncome = price * (100 - _invite.inviteDiscountRate()) / 100;    
 
                 address feeTo = _feeTo;
                 if(coinsType_ == 2){
@@ -256,21 +257,21 @@ contract SNSV3_2 is NFTV2 , ISns{
                         if(_invite.canInviter(inviter_) && coinsType_ != 2) {
                             IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_, inviterIncome);
                             _invite.setInviterIncome(inviter_,inviterCoinsType,inviterIncome);
-                            if((prices * coinsDestroyPercentage  / 100) - inviterIncome > 0){
-                                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(prices * coinsDestroyPercentage  / 100) - inviterIncome);
+                            if((price * coinsDestroyPercentage  / 100) - inviterIncome > 0){
+                                IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),(price * coinsDestroyPercentage  / 100) - inviterIncome);
                             }
                         }else{
-                            IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),prices * coinsDestroyPercentage / 100);
+                            IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(1),price * coinsDestroyPercentage / 100);
                         }  
-                        success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(feeTo),prices - prices * coinsDestroyPercentage / 100);
+                        success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(feeTo),price - price * coinsDestroyPercentage / 100);
                     }
                 }else{
                     if(_invite.canInviter(inviter_) && coinsType_ != 2) {
                         IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),inviter_,inviterIncome);
                         _invite.setInviterIncome(inviter_,inviterCoinsType,inviterIncome);
-                        success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(feeTo),prices - inviterIncome);
+                        success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(feeTo),price - inviterIncome);
                     }else{
-                        success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(feeTo),prices);
+                        success = IERC20(_coins[coinsType_]._coinAddress).transferFrom(_msgSender(),address(feeTo),price);
                     }
 
                 }
@@ -292,7 +293,7 @@ contract SNSV3_2 is NFTV2 , ISns{
         _tokenIdOfName[name_] = tokenId;
         //Key
         _key.mint();
-        emit Mint(_msgSender(), name_, tokenId);
+        emit Mint(_msgSender(), name_, tokenId, inviter_, coinsType_, price);
         
     }
 
@@ -663,15 +664,15 @@ contract SNSV3_2 is NFTV2 , ISns{
     //2.8 Thursday/Friday is offer 50%
     Offer private _offer;
     
-    function setIsOffer(uint256 offerStartTime_,uint256  offerPeriod_,uint256  offerTime_,uint256  offerRate_,bool offerOpen_) public virtual onlyOwner{
-       _offer = Offer({
-        offerStartTime:offerStartTime_,
-        offerPeriod:offerPeriod_,
-        offerTime:offerTime_,
-        offerRate:offerRate_,
-        offerOpen:offerOpen_
-       });
-    }
+    // function setIsOffer(uint256 offerStartTime_,uint256  offerPeriod_,uint256  offerTime_,uint256  offerRate_,bool offerOpen_) public virtual onlyOwner{
+    //    _offer = Offer({
+    //     offerStartTime:offerStartTime_,
+    //     offerPeriod:offerPeriod_,
+    //     offerTime:offerTime_,
+    //     offerRate:offerRate_,
+    //     offerOpen:offerOpen_
+    //    });
+    // }
 
     function InstitutionalRegist(address addr_,string memory name_) public virtual onlyOwner{
         //NFT
@@ -685,7 +686,7 @@ contract SNSV3_2 is NFTV2 , ISns{
         _tokenIdOfName[name_] = tokenId;
         //Key
         _key.mint();
-        emit Mint(_msgSender(), name_, tokenId);
+        emit Mint(_msgSender(), name_, tokenId,address(0),0,0);
     }
 
     //v3.2 free mint length
