@@ -1,0 +1,37 @@
+[
+    { 
+        "address":"0x67B368d90D50d618d66818671d8Dd02263875712",
+        "name":"z0",
+        "tokenId":"28125"   
+    },
+    {
+        "address":"0xc9B83e39f3FFe644883365d5C82b50A14250Bb9B",
+        "name":"z1",
+        "tokenId":"28126"   
+    },
+    {
+        "address":"0xbb9D5F5843446379e8C40c15fc1CA2c7B7148649",
+        "name":"z2",
+        "tokenId":"33198"   
+    },
+    {
+        "address":"0xa1cA09fc3E7E9C75b979D0F7EB2f6fc363954b6F",
+        "name":"z3",
+        "tokenId":"33119"   
+    },
+    {
+        "address":"0x694db880a0929131FFC6ea87FeA878b5fAd39444",
+        "name":"z6",
+        "tokenId":"28171"   
+    },
+    {
+        "address":"0x772144296D43E8D61a2c4271858e1b7b345B0E99",
+        "name":"z8",
+        "tokenId":"28842"   
+    },
+    {
+        "address":"0xb769d45aBd1b007a67E97c1B0D61e9DD0a44c3ea",
+        "name":"z9",
+        "tokenId":"28843"   
+    }
+]

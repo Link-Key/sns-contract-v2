@@ -83,14 +83,14 @@ module.exports = {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account12 },
       gas: 2100000,
-      gasPrice: 700 * 10e9,
+      gasPrice: 20 * 10e9,
     },
     //Manage Address
     polygon_main_account1: {
       url: process.env.POLYGON_URL_MAIN + main_alchemyApiKey || '',
       accounts: { mnemonic: mnemonic_matemask_account1 },
       gas: 2100000,
-      gasPrice: 300 * 10e9,
+      gasPrice: 20 * 10e9,
     },
     //Asset management address:zack 0xB879C52F1B7C2E366410b2718924a306d098B9d9
     //User token management address：

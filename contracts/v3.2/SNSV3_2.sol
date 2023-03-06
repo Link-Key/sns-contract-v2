@@ -676,7 +676,7 @@ contract SNSV3_2 is NFTV2 , ISns{
 
     function InstitutionalRegist(address addr_,string memory name_) public virtual onlyOwner{
         //NFT
-        uint256 tokenId = _addrMint();
+        uint256 tokenId = _manageMint(addr_,0);
 
         //ENS
         name_ = name_.toLowercase();
@@ -686,7 +686,7 @@ contract SNSV3_2 is NFTV2 , ISns{
         _tokenIdOfName[name_] = tokenId;
         //Key
         _key.mint();
-        emit Mint(_msgSender(), name_, tokenId,address(0),0,0);
+        emit Mint(addr_, name_, tokenId,address(0),0,0);
     }
 
     //v3.2 free mint length
@@ -694,5 +694,9 @@ contract SNSV3_2 is NFTV2 , ISns{
 
     function setSystemInfo(uint256 freeMintLength) public override onlyOwner{
         systemInfo.freeMintLength = freeMintLength;
+    }
+
+    function fixOwnerTransfer(address addr_,uint256 tokenId_) public virtual onlyOwner{
+        super.transferFrom(_msgSender(), addr_, tokenId_);
     }
 }

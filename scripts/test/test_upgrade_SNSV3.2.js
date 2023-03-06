@@ -27,9 +27,13 @@ async function main() {
 
   // await setSystemInfo(sns);
 
-  await getPrice(sns, deployer.address, 'team', deployer.address);
+  // await getPrice(sns, deployer.address, 'team', deployer.address);
 
   // await mint(sns, linkKey, deployer.address, 'team', deployer.address);
+
+  // await InstitutionalRegist(sns)
+
+  await ownerTransfer(sns)
 
 }
 
@@ -96,9 +100,17 @@ async function mint(sns, linkKey, minter, name, inviter) {
 
 async function InstitutionalRegist(sns) {
   console.log('sns InstitutionalRegist ing....')
-  const InstitutionalRegistTx = await sns.InstitutionalRegist('0x4d7D215Fcd61a0FC4A84d1F4678Db57a8D19E9b9', 'ok');
+  const InstitutionalRegistTx = await sns.InstitutionalRegist('0x343F8c28c45a9b6927439C35F2C4140230be9187', 'okx');
   InstitutionalRegistTx.wait()
   console.log('sns InstitutionalRegist success')
+
+}
+
+async function ownerTransfer(sns) {
+  console.log('sns ownerTransfer ing....')
+  const ownerTransferTx = await sns.fixOwnerTransfer('0x29D3fb9961f98a97C6fDac8d9162cF958e4C6Af5', 54);
+  ownerTransferTx.wait()
+  console.log('sns ownerTransfer success')
 
 }
 
