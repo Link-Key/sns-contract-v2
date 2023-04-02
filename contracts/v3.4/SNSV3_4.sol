@@ -490,7 +490,7 @@ contract SNSV3_4 is NFTV2 , ISns{
                 return priceInfo;
             }
         }else{
-            uint256 times = ((tokenMinted - priceSystemInfo.startTokenId) / priceSystemInfo.step) + 1;
+            uint256 times = (tokenMinted - priceSystemInfo.startTokenId) / priceSystemInfo.step;
             uint256 xMaticPrice = priceSystemInfo.xMaticPrice * (1000 + (times * priceSystemInfo.upRate)) / 1000;
             uint256 yUsdcPrice = priceSystemInfo.yUsdcPrice * (1000 + (times * priceSystemInfo.upRate)) / 1000;
             if (nameLength == 3) {

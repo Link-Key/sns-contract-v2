@@ -10,7 +10,6 @@ const {
   mainAddress
 } = require('../../address.json')
 
-const mintKols = require('../../mintKOL.json')
 const inviterAddress = require('../../inviterAddress.json')
 
 const xlsx = require("node-xlsx");
@@ -18,6 +17,8 @@ const fs = require('fs');
 const path = require('path');
 const { default: BigNumber } = require('bignumber.js');
 const { isAddress } = require('ethers/lib/utils');
+
+const emptyAddress = '0x0000000000000000000000000000000000000000'
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
@@ -31,7 +32,7 @@ async function main() {
 
   // await setPriceSystemInfo(sns);
 
-  await getPrice(sns, deployer.address, 'wan', deployer.address);
+  await getPrice(sns, deployer.address, 'wanbo789798', emptyAddress);
 
   // await mint(sns, linkKey, deployer.address, 'team', deployer.address);
 
@@ -123,7 +124,7 @@ async function InstitutionalRegist(sns) {
   let data = xlsxData[0].data
   newData.push(data[0])
   for (let index = 1; index < data.length; index++) {
-    let emptyAddress = '0x0000000000000000000000000000000000000000'
+
     let kol = data[index];
     let address = kol[0]
     let name = kol[1].toString().toLowerCase().replace(/\s*/g, "")
