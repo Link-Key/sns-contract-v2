@@ -40,6 +40,7 @@
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "^4.4.1",
     "@optionality.io/clone-factory": "^0.2.1",
-    "bignumber.js": "^9.0.2"
+    "bignumber.js": "^9.0.2",
+    "node-xlsx":"^0.21.0"
   }
 }

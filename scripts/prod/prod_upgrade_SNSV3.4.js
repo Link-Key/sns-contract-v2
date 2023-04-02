@@ -24,26 +24,16 @@ async function main() {
   console.log("the account:", deployer.address);
   console.log("Account balance:", hre.ethers.utils.formatEther(await deployer.getBalance()));
 
-  const SNS = await ethers.getContractFactory('SNSV3_3')
-  const Invite = await ethers.getContractFactory('InviteV2')
+  const SNS = await ethers.getContractFactory('SNSV3_4')
 
   // const sns = await upgradeSns(SNS);
   const { sns } = await attachOld(SNS)
-  // await setSystemInfo(sns);
 
-  // await getPrice(sns, deployer.address, 'wanbo1234', deployer.address);
+  // await setPriceSystemInfo(sns);
+
+  await getPrice(sns, deployer.address, 'wan', deployer.address);
 
   // await mint(sns, linkKey, deployer.address, 'team', deployer.address);
-
-  await InstitutionalRegist(sns)
-
-  // await oneRegist(sns)
-
-  // await ownerTransfer(sns)
-
-  // const invite = await attachInvite(Invite)
-
-  // await getInfo(sns, invite)
 
 }
 
@@ -72,28 +62,28 @@ async function attachOld(SNS) {
   return { sns }
 }
 
-async function attachInvite(Invite) {
-  const invite = await Invite.attach(mainAddress.inviteAddress);
-  console.log('invite attach success', invite.address)
-
-  const owner = await invite.owner();
-  console.log('invite owner', owner)
-  return invite
-}
 
 
-async function setSystemInfo(sns) {
-  console.log('sns setSystemInfo ing....')
-  const setSystemInfoTx = await sns.setSystemInfo(8)
-  setSystemInfoTx.wait()
-  console.log('sns setSystemInfo success')
+async function setPriceSystemInfo(sns) {
+  console.log('sns setPriceSystemInfo ing....')
+  const setPriceSystemInfoTx = await sns.setPriceSystemInfo(
+    ethers.BigNumber.from("10000000000000000000"),
+    10000000,
+    100,
+    8,
+    10,
+    60,
+    100500
+  )
+  setPriceSystemInfoTx.wait()
+  console.log('sns setPriceSystemInfo success')
 }
 
 async function getPrice(sns, minter, name, inviter) {
 
-  console.log('sns getInfo ing....')
-  const info = await sns.getInfo('0x67B368d90D50d618d66818671d8Dd02263875712', name, 0)
-  console.log('info', info)
+  // console.log('sns getInfo ing....')
+  // const info = await sns.getInfo('0x67B368d90D50d618d66818671d8Dd02263875712', name, 0)
+  // console.log('info', info)
 
   console.log('sns getPrice ing....')
   const price = await sns.getPrice(minter, name, inviter)

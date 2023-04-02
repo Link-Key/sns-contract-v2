@@ -23,6 +23,7 @@
         "tradingAddress":"0x5E1E453C50AECCd16Fb2DaA8959FBBa8B35e5B63",
         "followAddress":"0x49dfEDc506ff985F0e58b8aB425C92841FAcC21c",
         "groupAddress":"0xea0480753FBD5852ef81C66F7312e9E347c66C17",
-        "feeToAddress":"0x5455e2960e243671966d92deea4c7edac49305af"
+        "feeToAddress":"0x5455e2960e243671966d92deea4c7edac49305af",
+        "newFeeToAddress":"0xff42710340eb65d76c4beab669556f2237699fba"
     }
 }

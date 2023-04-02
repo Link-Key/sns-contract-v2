@@ -12,7 +12,7 @@ import "../v2.4/ResolverV2_4.sol";
 import "../v2.9/InviteInterface.sol";
 import "./ISns.sol";
 
-contract SNSV3_3 is NFTV2 , ISns{
+contract SNSV3_4 is NFTV2 , ISns{
     using SafeMathUpgradeable for uint256;
     using LibString for string;
 
@@ -450,8 +450,8 @@ contract SNSV3_3 is NFTV2 , ISns{
 
         uint256 tokenMinted = super.getTokenMinted();
 
-        if (nameLength < STANDARD_LENGTH) {
-            if(nameLength == 3){
+        if(tokenMinted <= priceSystemInfo.startTokenId){
+            if (nameLength == 3) {
                 if(tokenMinted < 10000){
                     priceInfo.maticPrice = 1 ether;
                 }else{
@@ -462,75 +462,64 @@ contract SNSV3_3 is NFTV2 , ISns{
                         priceInfo.maticPrice = 10 ether;
                     }
                 }
-
                 priceInfo.maticPrice *= 2;
-
-                if(_offer.offerOpen ? (block.timestamp - _offer.offerStartTime) % _offer.offerPeriod <= _offer.offerTime : false){
-                    priceInfo.maticPrice = priceInfo.maticPrice.mul(_offer.offerRate).div(1000); 
-                }
-
-                priceInfo.maticPrice = _invite.getInviteDiscountPrice(priceInfo.maticPrice, inviter_);
-                priceInfo.keyPrice = 2**256 - 1;
-                priceInfo.lowbPrice = 2**256 - 1;
                 priceInfo.usdcPrice = 2**256 - 1;
-            }else{
-                priceInfo.maticPrice = 2**256 - 1;
-                priceInfo.keyPrice = 2**256 - 1;
-                priceInfo.lowbPrice = 2**256 - 1;
-                priceInfo.usdcPrice = 2**256 - 1;
-            }
-        } else if(nameLength >= systemInfo.freeMintLength && tokenMinted <= 100000){
-            return priceInfo;
-        } else if(nameLength >= systemInfo.freeMintLength && tokenMinted > 100000){
-            priceInfo.maticPrice = (((tokenMinted - 100000) / 20000) * 2 ether)+ 2 ether <= 10 ether ? ((((tokenMinted - 100000) / 20000) * 2 ether ) + 2 ether) : 10 ether;
-            if(_offer.offerOpen ? (block.timestamp - _offer.offerStartTime) % _offer.offerPeriod <= _offer.offerTime : false){
-                priceInfo.maticPrice = priceInfo.maticPrice.mul(_offer.offerRate).div(1000); 
-            }
-            priceInfo.maticPrice = _invite.getInviteDiscountPrice(priceInfo.maticPrice, inviter_);
-            priceInfo.keyPrice = 2**256 - 1;
-            priceInfo.lowbPrice = 2**256 - 1;
-            priceInfo.usdcPrice = 2**256 - 1;
-        } else {
-            if(tokenMinted < 10000){
-                priceInfo.maticPrice = 1 ether;
-            }else{
-                if(tokenMinted > 16000){
-                    uint256 times = (tokenMinted.sub(16000)).div(_increasesNumber);
-                    priceInfo.maticPrice = (10 ether * (100 + (times.mul(_increasesPrice)))).div(100);
+            } else if(3 < nameLength && nameLength < 8){
+                if(tokenMinted < 10000){
+                    priceInfo.maticPrice = 1 ether;
                 }else{
-                    priceInfo.maticPrice = 10 ether;
+                    if(tokenMinted > 16000){
+                        uint256 times = (tokenMinted.sub(16000)).div(_increasesNumber);
+                        priceInfo.maticPrice = (10 ether * (100 + (times.mul(_increasesPrice)))).div(100);
+                    }else{
+                        priceInfo.maticPrice = 10 ether;
+                    }
                 }
+                priceInfo.usdcPrice = _coins[3]._coinsPrice;
+                if(tokenMinted >= 20300){
+                    priceInfo.usdcPrice += (tokenMinted.sub(20300).div(100)) * 25* 10**4;
+                }
+            } else if(nameLength >= 8){
+                priceInfo.maticPrice = (((tokenMinted - 100000) / 20000) * 2 ether)+ 2 ether <= 10 ether ? ((((tokenMinted - 100000) / 20000) * 2 ether ) + 2 ether) : 10 ether;
+                priceInfo.usdcPrice = 2**256 - 1;
+            } else {
+                priceInfo.maticPrice = 2**256 -1;
+                priceInfo.usdcPrice = 2**256 -1;
+                priceInfo.keyPrice =  2**256 -1;
+                priceInfo.lowbPrice = 2**256 -1;
+                return priceInfo;
             }
-
-            priceInfo.keyPrice = _coins[1]._coinsPrice;
-            if(tokenMinted > 23000){
-                priceInfo.keyPrice = 30 ether;
+        }else{
+            uint256 times = ((tokenMinted - priceSystemInfo.startTokenId) / priceSystemInfo.step) + 1;
+            uint256 xMaticPrice = priceSystemInfo.xMaticPrice * (1000 + (times * priceSystemInfo.upRate)) / 1000;
+            uint256 yUsdcPrice = priceSystemInfo.yUsdcPrice * (1000 + (times * priceSystemInfo.upRate)) / 1000;
+            if (nameLength == 3) {
+                priceInfo.maticPrice = priceSystemInfo.bTimes * xMaticPrice;
+                priceInfo.usdcPrice = priceSystemInfo.bTimes * yUsdcPrice;
+            } else if(3 < nameLength && nameLength < 8){
+                priceInfo.maticPrice = priceSystemInfo.aTimes * xMaticPrice;
+                priceInfo.usdcPrice = priceSystemInfo.aTimes * yUsdcPrice;
+            } else if(nameLength >= 8){
+                priceInfo.maticPrice = xMaticPrice;
+                priceInfo.usdcPrice = yUsdcPrice;
+            }else{
+                priceInfo.maticPrice = 2**256 -1;
+                priceInfo.usdcPrice = 2**256 -1;
+                priceInfo.keyPrice =  2**256 -1;
+                priceInfo.lowbPrice = 2**256 -1;
+                return priceInfo;
             }
-            priceInfo.lowbPrice = _coins[2]._coinsPrice;
-            //2022-06-01 00:00:00
-            if(block.timestamp>1654012800){
-                priceInfo.lowbPrice = 400000 ether;
-            }
-
-            priceInfo.usdcPrice = _coins[3]._coinsPrice;
-            if(tokenMinted >= 20300){
-                priceInfo.usdcPrice += (tokenMinted.sub(20300).div(100)) * 25* 10**4;
-            }
-            
-            if(_offer.offerOpen ? (block.timestamp - _offer.offerStartTime) % _offer.offerPeriod <= _offer.offerTime : false){
-                priceInfo.maticPrice =priceInfo.maticPrice.mul(_offer.offerRate).div(1000);
-                priceInfo.keyPrice = priceInfo.keyPrice.mul(_offer.offerRate).div(1000);
-                priceInfo.lowbPrice = priceInfo.lowbPrice.mul(_offer.offerRate).div(1000);
-                priceInfo.usdcPrice = priceInfo.usdcPrice.mul(_offer.offerRate).div(1000);
-            }
-
-            priceInfo.maticPrice = _invite.getInviteDiscountPrice(priceInfo.maticPrice, inviter_);
-            priceInfo.keyPrice = _coins[1]. _isClose? 2**256 -1 : _invite.getInviteDiscountPrice(priceInfo.keyPrice, inviter_);
-            priceInfo.lowbPrice = _coins[2]. _isClose? 2**256 -1 :_invite.getInviteDiscountPrice(priceInfo.lowbPrice, inviter_);
-            priceInfo.usdcPrice = _coins[3]. _isClose? 2**256 -1 :_invite.getInviteDiscountPrice(priceInfo.usdcPrice, inviter_);
         }
-        
-        
+
+        if(_offer.offerOpen ? (block.timestamp - _offer.offerStartTime) % _offer.offerPeriod <= _offer.offerTime : false){
+            priceInfo.maticPrice = priceInfo.maticPrice.mul(_offer.offerRate).div(1000);
+            priceInfo.usdcPrice = (priceInfo.usdcPrice == 2**256 - 1) ? 2**256 - 1 : priceInfo.usdcPrice.mul(_offer.offerRate).div(1000);
+        }
+
+        priceInfo.maticPrice = _invite.getInviteDiscountPrice(priceInfo.maticPrice, inviter_);
+        priceInfo.keyPrice = 2**256 -1 ;
+        priceInfo.lowbPrice = 2**256 -1 ;
+        priceInfo.usdcPrice = (priceInfo.usdcPrice == 2**256 - 1) ? 2**256 -1 :_invite.getInviteDiscountPrice(priceInfo.usdcPrice, inviter_);
     }
 
     /**
@@ -714,7 +703,19 @@ contract SNSV3_3 is NFTV2 , ISns{
     //     super.transferFrom(_msgSender(), addr_, tokenId_);
     // }
 
-    function setFeeTo(address newFeeTo_) public onlyOwner{
-        _feeTo = newFeeTo_;
+    // function setFeeTo(address newFeeTo_) public onlyOwner{
+    //     _feeTo = newFeeTo_;
+    // }
+
+    PriceSystemInfo private priceSystemInfo;
+
+    function setPriceSystemInfo(uint256 xMaticPrice,uint256 yUsdcPrice,uint256 step,uint256 upRate,uint256 aTimes,uint256 bTimes,uint256 startTokenId) public onlyOwner{
+        priceSystemInfo.xMaticPrice = xMaticPrice;
+        priceSystemInfo.yUsdcPrice = yUsdcPrice;
+        priceSystemInfo.step = step;
+        priceSystemInfo.upRate = upRate;
+        priceSystemInfo.aTimes = aTimes;
+        priceSystemInfo.bTimes = bTimes;
+        priceSystemInfo.startTokenId = startTokenId;
     }
 }
