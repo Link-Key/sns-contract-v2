@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-
-
 interface ISns {
     struct Response{
         bool shortNameAllowed;
@@ -48,25 +46,14 @@ interface ISns {
         uint256 keyPrice;
         uint256 lowbPrice;
         uint256 usdcPrice;
+        MixedPrice mixedMaticAndKeyPrice;
     }
 
-    struct PriceSystemInfo{
-        uint256 xMaticPrice; // 10 ether
-        uint256 yUsdcPrice; // 10 * 10**6
-        uint256 step;//100
-        uint256 upRate; // 8
-        uint256 aTimes;//10
-        uint256 bTimes;//60
-        uint256 startTokenId;//100500
+    struct MixedPrice{
+        uint256 token1Price;
+        uint256 token2Price;
     }
-
-    struct WhiteListInfo{
-        bytes32 threeMerkleRoot;
-        bytes32 fourSevenMerkleRoot;
-        bytes32 eightPlusMerkleRoot;
-        mapping(address => bool) isMint;
-    }
-
+    
 
     function setStake(uint256 tokenId_,bool staked) external;
 
@@ -74,7 +61,9 @@ interface ISns {
 
     function getInfo(address addr_,string memory name_,uint256 tokenId_) external view returns (Response memory addressResp);
 
-    function getPrice(address minter_,string memory name_,address inviter_,bytes32[] calldata merkleProof_) external view returns (PriceInfo memory priceInfo);
+    function getPrice(address minter_,string memory name_,address inviter_) external view returns (PriceInfo memory priceInfo);
 
-    // function setSystemInfo(uint256 freeMintLength) external;
+    function getName(address addr_) external view returns(string memory name);
+
+    function getAddress(string memory name_) external view returns(address addr);
 }
