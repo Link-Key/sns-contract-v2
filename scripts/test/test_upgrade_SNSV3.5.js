@@ -37,7 +37,7 @@ async function main() {
 
   // await getPrice(sns, deployer.address, 'am1', deployer.address);
 
-  // await mint(sns, linkKey, deployer.address, 'team', deployer.address);
+  await mint(sns, linkKey, deployer.address, 'aaa', deployer.address);
 
   // await InstitutionalRegist(sns)
 
@@ -92,13 +92,13 @@ async function setWhiteListInfo(sns) {
   let threeMerkleRoot_ = '0x' + threeTree.getRoot().toString('hex');
   console.log('threeMerkleRoot_', threeMerkleRoot_);
 
-  let leaf = keccak256('0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F');
+  let leaf = keccak256('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded');
   let proof = threeTree.getHexProof(leaf);
-  console.log('Proof of 0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F: ', proof);
+  console.log('Proof of 0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded: ', proof);
 
-  console.log(await sns.isMerk('0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F', threeMerkleRoot_, proof))
+  console.log(await sns.isMerk('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', threeMerkleRoot_, proof))
 
-  console.log(await sns.getPrice('0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F', 'abc', emptyAddress, proof))
+  console.log(await sns.getPrice('0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded', 'abc', emptyAddress, proof))
   let fourSevenWhitelistAddresses = [
     '0xf27Ac7cff0C02C11794B9115248097BD040E4C9c',
     '0x68aF7EF8182F4Bf50e32814AeCaaeB747bfc905F',
@@ -158,7 +158,31 @@ async function getPrice(sns, minter, name, inviter) {
 
 async function mint(sns, linkKey, minter, name, inviter) {
 
-  const prices = await sns.getPrice(minter, name, inviter);
+  let threeWhitelistAddresses = [
+    '0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded',
+    '0x7A1A9567Dd868D24D49F00201107463b0114fe55',
+    '0xE4336D25e9Ca0703b574a6fd1b342A4d0327bcfa',
+    '0xeDcB8a28161f966C5863b8291E80dDFD1eB78491',
+    '0x77cbd0fa30F83a249da282e9fE90A86d7936FdE7',
+    '0xc39F9406284CcAeB426D0039a3F6ADe14573BaFe',
+    '0x16Beb6b55F145E4269279B82c040B7435f1088Ee',
+    '0x900b2909127Dff529f8b4DB3d83b957E6aE964c2',
+    '0xeA2A799793cE3D2eC6BcD066563f385F25401e95',
+    '0x78f196b668A3740fe2703a81CE50A05aF201B6b9',
+    '0x179683F5c9Defe5e430f5f3e6d06A5Bc9b5A06d7'
+  ];
+  let threeLeafNodes = threeWhitelistAddresses.map(address => keccak256(address));
+  let threeTree = new MerkleTree(threeLeafNodes, keccak256, { sortPairs: true });
+  let threeMerkleRoot_ = '0x' + threeTree.getRoot().toString('hex');
+  console.log('threeMerkleRoot_', threeMerkleRoot_);
+
+  let leaf = keccak256(minter);
+  let proof = threeTree.getHexProof(leaf);
+  console.log('Proof of 0xB3eF1C9718F3EAFaeb6fd7Ac63E8f43493101Ded: ', proof);
+
+  console.log(await sns.isMerk(minter, threeMerkleRoot_, proof))
+
+  const prices = await sns.getPrice(minter, name, inviter, proof);
   console.log('prices', prices)
 
   // console.log('LinkKey approve ing...')
@@ -170,7 +194,7 @@ async function mint(sns, linkKey, minter, name, inviter) {
   // console.log('LinkKey approve success')
 
   console.log('sns mint ing...')
-  const mintTx = await sns.mint(name, 0, inviter, {
+  const mintTx = await sns.mint(name, 0, inviter, proof, {
     value: prices.maticPrice
   })
   await mintTx.wait()

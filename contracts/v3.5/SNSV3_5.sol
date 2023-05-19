@@ -178,15 +178,15 @@ contract SNSV3_5 is NFTV2 , ISns{
         uint256 price = 0;
 
         if(nameLength == 3){
-            if(isMerk(_msgSender(),whiteListInfo.threeMerkleRoot,merkleProof_) && !whiteListInfo.isMint[_msgSender()]){
+            if(isMerk(_msgSender(),whiteListInfo.threeMerkleRoot,merkleProof_)){
                 success = true;
             }
         }else if(3 < nameLength && nameLength < 8){
-            if(isMerk(_msgSender(),whiteListInfo.threeMerkleRoot,merkleProof_) && !whiteListInfo.isMint[_msgSender()]){
+            if(isMerk(_msgSender(),whiteListInfo.fourSevenMerkleRoot,merkleProof_)){
                 success = true;
             }
         }else if(nameLength >= 8){
-            if(isMerk(_msgSender(),whiteListInfo.threeMerkleRoot,merkleProof_) && !whiteListInfo.isMint[_msgSender()]){
+            if(isMerk(_msgSender(),whiteListInfo.eightPlusMerkleRoot,merkleProof_)){
                 success = true;
             }
         }
@@ -289,8 +289,8 @@ contract SNSV3_5 is NFTV2 , ISns{
      */
     function _registerName(string memory name_, address to_) internal virtual returns (bool){
         require(_defaultResolverAddress != address(0), "006---please set defaultResolverAddress");
-        // require(!_nameRegistered[name_], "003---name has been registered");
-        // require(!_registered[to_],"008---the address has _registered");
+        require(!_nameRegistered[name_], "003---name has been registered");
+        require(!_registered[to_],"008---the address has _registered");
         _nameOfOwner[to_] = name_;
         _resolverInfo[name_].resolverAddress = _defaultResolverAddress;
         _resolverInfo[name_].owner = to_;
@@ -426,19 +426,19 @@ contract SNSV3_5 is NFTV2 , ISns{
         uint256 yUsdcPrice = priceSystemInfo.yUsdcPrice * (1000 + (times * priceSystemInfo.upRate)) / 1000;
 
         if (nameLength == 3) {
-            if(isMerk(minter_,whiteListInfo.threeMerkleRoot,merkleProof_) && !whiteListInfo.isMint[minter_]){
+            if(isMerk(minter_,whiteListInfo.threeMerkleRoot,merkleProof_)){
                 return priceInfo;
             }
             priceInfo.maticPrice = priceSystemInfo.bTimes * xMaticPrice;
             priceInfo.usdcPrice = priceSystemInfo.bTimes * yUsdcPrice;
         } else if(3 < nameLength && nameLength < 8){
-            if(isMerk(minter_,whiteListInfo.fourSevenMerkleRoot,merkleProof_) && !whiteListInfo.isMint[minter_]){
+            if(isMerk(minter_,whiteListInfo.fourSevenMerkleRoot,merkleProof_)){
                 return priceInfo;
             }
             priceInfo.maticPrice = priceSystemInfo.aTimes * xMaticPrice;
             priceInfo.usdcPrice = priceSystemInfo.aTimes * yUsdcPrice;
         } else if(nameLength >= 8){
-            if(isMerk(minter_,whiteListInfo.eightPlusMerkleRoot,merkleProof_) && !whiteListInfo.isMint[minter_]){
+            if(isMerk(minter_,whiteListInfo.eightPlusMerkleRoot,merkleProof_)){
                 return priceInfo;
             }
             priceInfo.maticPrice = xMaticPrice;

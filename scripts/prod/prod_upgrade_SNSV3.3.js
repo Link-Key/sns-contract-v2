@@ -10,7 +10,6 @@ const {
   mainAddress
 } = require('../../address.json')
 
-const mintKols = require('../../mintKOL.json')
 const inviterAddress = require('../../inviterAddress.json')
 
 const xlsx = require("node-xlsx");
@@ -147,7 +146,7 @@ async function InstitutionalRegist(sns) {
     //   kol[5] = ''
     // }
 
-    if (index >= 192) {
+    if (index >= 274) {
       let nameInfo = await sns.getInfo(emptyAddress, name + '.key', 0)
       let addressInfo = await sns.getInfo(address, "", 0)
       console.log(index, 'name', name, 'address', address, 'addressInfo.nameOfOwner', addressInfo.nameOfOwner, 'nameInfo.resolverOwner', nameInfo.resolverOwner)

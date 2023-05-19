@@ -32,7 +32,7 @@ async function main() {
 
   // await setPriceSystemInfo(sns);
 
-  await getPrice(sns, deployer.address, 'wanbo789798', emptyAddress);
+  await getPrice(sns, deployer.address, '   ', emptyAddress);
 
   // await mint(sns, linkKey, deployer.address, 'team', deployer.address);
 
